@@ -92,9 +92,27 @@ cd install\docker
 
 ## Release history
 
+### 7/21/2025
+- added VNC server and Xfce, see https://github.com/makerspet/support/discussions/48
+
+When using VNC instead of X server, run kaiaai/kaiaai docker image as follows in Windows:
+```
+docker run --name makerspet -it --rm -v c:\maps:/root/maps -p 8888:8888/udp -p 4430:4430/tcp -p 5901:5901 -e DISPLAY=:1 kaiaai/kaiaai:iron
+```
+
+Launch the VNC server inside the Docker container. You will be prompted to choose a VNC password.
+```
+vncserver :1 -geometry 1920x1080 -depth 24 -localhost no
+```
+
+Install a VNC viewer, e.g. https://www.tightvnc.com/ on your Windows or MacOS PC.
+
+Launch the VNC viewer. Open `localhost:5061` and enter your VNC password.
+
 ### 3/10/2025
 - major bugfix: Delta, Delta-2G LiDARs decoding in kaiaai_telemetry package
 - matching [Kaia.ai firmware](https://github.com/kaiaai/firmware) release v0.8.3
+- image tag `kaiaai/kaiaai-031125:iron` https://hub.docker.com/repository/docker/kaiaai/kaiaai-031125
 
 ### 3/9/2025
 - fixed LiDAR model names in `telem.yaml`

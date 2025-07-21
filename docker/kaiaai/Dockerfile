@@ -1,4 +1,4 @@
-ARG distro_tag=humble
+ARG distro_tag=iron
 FROM osrf/ros:$distro_tag-desktop
 
 WORKDIR /uros_ws
@@ -30,9 +30,7 @@ ros-$ROS_DISTRO-gazebo-ros-pkgs ros-$ROS_DISTRO-joint-state-publisher-gui \
 ros-$ROS_DISTRO-cartographer-ros \
 ros-$ROS_DISTRO-nav2-map-server ros-$ROS_DISTRO-nav2-bringup \
 ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro \
-&&  pip3 install aiortc aiohttp opencv-python \
-&&  apt autoremove -y \
-&&  rm -rf /var/lib/apt/lists/*
+&&  pip3 install aiortc aiohttp opencv-python
 
 RUN . /opt/ros/$ROS_DISTRO/setup.sh \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
@@ -64,6 +62,15 @@ RUN echo "alias kaia='ros2 run kaiaai cli'" >> ~/.bashrc
 RUN rm /*.sh
 COPY ./kaiaai-entrypoint.sh /
 COPY ./.bash_history /root
-# EXPOSE 8888/udp
+
+RUN DEBIAN_FRONTEND=noninteractive apt install -y tigervnc-standalone-server xfce4 xfce4-terminal \
+&&  mkdir ~/.vnc \
+&&  echo startxfce4 > ~/.vnc/xstartup \
+&&  chmod +x ~/.vnc/xstartup \
+&&  apt autoremove -y \
+&&  rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8888/udp
+EXPOSE 5601/tcp
 ENTRYPOINT ["/bin/sh", "/kaiaai-entrypoint.sh"]
 CMD ["bash"]
