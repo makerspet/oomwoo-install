@@ -31,23 +31,20 @@ ros-iron-gazebo-ros-pkgs ros-iron-joint-state-publisher-gui \
 ros-iron-cartographer-ros \
 ros-iron-nav2-map-server ros-iron-nav2-bringup \
 ros-iron-joint-state-publisher ros-iron-xacro
-pip3 install aiortc aiohttp opencv-python
 sudo apt autoremove -y
 # sudo rm -rf /var/lib/apt/lists/*
 
 git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs
-git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai
-git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry
-git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop
-git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup
+git clone -b dev --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai
+git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry
+git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop
+git clone -b dev --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup
 git clone -b iron --depth 1 https://github.com/makerspet/makerspet_fido src/makerspet_fido
 git clone -b iron --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki
 git clone -b iron --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy
 git clone -b iron --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini
 git clone -b iron --depth 1 https://github.com/makerspet/makerspet src/makerspet
 git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo
-git clone --depth 1 https://github.com/kaiaai/kaiaai_web src/kaiaai_web
-git clone --depth 1 https://github.com/kaiaai/kaiaai_apps src/kaiaai_apps
 git clone --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2
 git clone --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper
 git clone --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe
