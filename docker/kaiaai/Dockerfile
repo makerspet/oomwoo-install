@@ -29,12 +29,11 @@ RUN apt install -y python3-pip nano inotify-tools \
 ros-$ROS_DISTRO-gazebo-ros-pkgs ros-$ROS_DISTRO-joint-state-publisher-gui \
 ros-$ROS_DISTRO-cartographer-ros \
 ros-$ROS_DISTRO-nav2-map-server ros-$ROS_DISTRO-nav2-bringup \
-ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro \
-&&  pip3 install aiortc aiohttp opencv-python
+ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro
 
 RUN . /opt/ros/$ROS_DISTRO/setup.sh \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai \
+&&  git clone -b dev --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
@@ -44,8 +43,6 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/makerspet/makerspet src/makerspet \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
-&&  git clone --depth 1 https://github.com/kaiaai/kaiaai_web src/kaiaai_web \
-&&  git clone --depth 1 https://github.com/kaiaai/kaiaai_apps src/kaiaai_apps \
 &&  git clone --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
 &&  git clone --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
 &&  git clone --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
