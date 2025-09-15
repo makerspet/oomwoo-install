@@ -46,6 +46,7 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh \
 &&  git clone --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
 &&  git clone --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
 &&  git clone --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
+&&  rosdep install --from-paths src --ignore-src -y \
 &&  colcon build --symlink-install \
 &&  rm -rf log/
 # rm -rf build/
