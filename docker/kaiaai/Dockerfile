@@ -61,14 +61,14 @@ RUN rm /*.sh
 COPY ./kaiaai-entrypoint.sh /
 COPY ./.bash_history /root
 
-RUN DEBIAN_FRONTEND=noninteractive apt install -y tigervnc-standalone-server xfce4 xfce4-terminal \
-&&  mkdir ~/.vnc \
-&&  echo startxfce4 > ~/.vnc/xstartup \
-&&  chmod +x ~/.vnc/xstartup \
-&&  apt autoremove -y \
-&&  rm -rf /var/lib/apt/lists/*
+# RUN DEBIAN_FRONTEND=noninteractive apt install -y tigervnc-standalone-server xfce4 xfce4-terminal \
+# &&  mkdir ~/.vnc \
+# &&  echo startxfce4 > ~/.vnc/xstartup \
+# &&  chmod +x ~/.vnc/xstartup \
+# &&  apt autoremove -y \
+# &&  rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8888/udp
-EXPOSE 5601/tcp
+# EXPOSE 5601/tcp
 ENTRYPOINT ["/bin/sh", "/kaiaai-entrypoint.sh"]
 CMD ["bash"]
