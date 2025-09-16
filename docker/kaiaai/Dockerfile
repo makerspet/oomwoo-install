@@ -29,7 +29,9 @@ RUN apt install -y python3-pip nano inotify-tools \
 ros-$ROS_DISTRO-gazebo-ros-pkgs ros-$ROS_DISTRO-joint-state-publisher-gui \
 ros-$ROS_DISTRO-cartographer-ros \
 ros-$ROS_DISTRO-nav2-map-server ros-$ROS_DISTRO-nav2-bringup \
-ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro
+ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro \
+&&  pip3 install websockets
+# rosdep installs python3-websockets which is too old
 
 RUN . /opt/ros/$ROS_DISTRO/setup.sh \
 &&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
