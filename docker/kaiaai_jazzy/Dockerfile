@@ -39,10 +39,10 @@ ros-jazzy-joint-state-publisher ros-jazzy-xacro
 
 RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
-&&  git clone -b dev --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai \
+&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai \
 &&  git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
 &&  git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
-&&  git clone -b dev --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
+&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
 &&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet_fido src/makerspet_fido \
 &&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
 &&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
