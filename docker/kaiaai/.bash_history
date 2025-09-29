@@ -1,4 +1,5 @@
 exit
+ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true map:=/ros_ws/src/kaiaai_gazebo/map/living_room.yaml
 ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
 ros2 launch kaiaai_gazebo world.launch.py
 ros2 param set /pet lidar.scan.freq.target 7.0
