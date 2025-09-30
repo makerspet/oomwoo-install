@@ -53,6 +53,7 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
 # &&  git clone --depth 1 https://github.com/kaiaai/diff_drive src/diff_drive \
+&&  git clone https://github.com/kaiaai/diff_robot src/diff_robot \
 &&  rosdep install --from-paths src --ignore-src -y \
 &&  colcon build --symlink-install \
 &&  rm -rf log/
