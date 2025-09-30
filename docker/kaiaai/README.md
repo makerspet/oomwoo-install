@@ -8,8 +8,7 @@ A pre-built Docker image is available at [Docker Hub](https://hub.docker.com/r/k
 If you would like to modify and/or rebuild this image:
 - change your current directory in your shell to the location of this Docker file
 - optionally, edit the Dockerfile as you wish
-- run the command below to build the Docker image using ROS2 `iron` release:
 
 ```
-docker build --no-cache -t kaiaai/kaiaai:iron --build-arg distro_tag=iron .
+docker build --no-cache -t kaiaai/kaiaai:jazzy .
 ```

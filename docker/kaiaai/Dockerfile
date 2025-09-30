@@ -1,15 +1,14 @@
-ARG distro_tag=iron
-FROM osrf/ros:$distro_tag-desktop
+FROM osrf/ros:jazzy-desktop
 
 WORKDIR /uros_ws
 
-RUN git clone --depth 1 -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup \
-&&  . /opt/ros/$ROS_DISTRO/setup.sh \
+RUN git clone --depth 1 -b jazzy https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup \
+&&  . /opt/ros/jazzy/setup.sh \
 &&  apt update \
 &&  apt install -y ed python3-pip \
-&&  apt install -y ros-$ROS_DISTRO-rmw-fastrtps-cpp \
-&&  apt remove -y ros-$ROS_DISTRO-rmw-cyclonedds-cpp \
-&&  rosdep update --rosdistro $ROS_DISTRO\
+&&  apt install -y ros-jazzy-rmw-fastrtps-cpp \
+&&  apt remove -y ros-jazzy-rmw-cyclonedds-cpp \
+&&  rosdep update --rosdistro jazzy\
 &&  rosdep install --from-paths src --ignore-src -y \
 &&  colcon build \
 &&  . install/local_setup.sh \
@@ -26,34 +25,40 @@ ENV MICROROS_DISABLE_SHM=1
 WORKDIR /ros_ws
 
 RUN apt install -y python3-pip nano inotify-tools \
-ros-$ROS_DISTRO-gazebo-ros-pkgs ros-$ROS_DISTRO-joint-state-publisher-gui \
-ros-$ROS_DISTRO-cartographer-ros \
-ros-$ROS_DISTRO-nav2-map-server ros-$ROS_DISTRO-nav2-bringup \
-ros-$ROS_DISTRO-joint-state-publisher ros-$ROS_DISTRO-xacro \
-&&  pip3 install websockets Pillow
+ros-jazzy-ros-gz \
+ros-jazzy-gz-ros2-control \
+ros-jazzy-ros2-control \
+ros-jazzy-ros2-controllers \
+ros-jazzy-joint-state-publisher-gui \
+ros-jazzy-cartographer-ros \
+ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup \
+ros-jazzy-joint-state-publisher ros-jazzy-xacro
+
+# &&  pip3 install websockets Pillow
 # rosdep installs python3-websockets which is too old
 
-RUN . /opt/ros/$ROS_DISTRO/setup.sh \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
-&&  git clone -b dev --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
-&&  git clone -b dev --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/makerspet/makerspet_fido src/makerspet_fido \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/makerspet/makerspet src/makerspet \
-&&  git clone -b $ROS_DISTRO --depth 1 https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
+RUN . /opt/ros/jazzy/setup.sh \
+&&  git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
+&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai \
+&&  git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
+&&  git clone -b iron --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
+&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
+&&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet_fido src/makerspet_fido \
+&&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
+&&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
+&&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
+&&  git clone -b iron --depth 1 https://github.com/makerspet/makerspet src/makerspet \
+&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
 &&  git clone --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
 &&  git clone --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
 &&  git clone --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
+&&  git clone --depth 1 https://github.com/kaiaai/diff_drive src/diff_drive \
 &&  rosdep install --from-paths src --ignore-src -y \
 &&  colcon build --symlink-install \
 &&  rm -rf log/
 # rm -rf build/
 
-RUN echo ". /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+RUN echo ". /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
 RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
 # RUN echo "export KAIAAI_ROBOT=makerspet_snoopy" >> ~/.bashrc
