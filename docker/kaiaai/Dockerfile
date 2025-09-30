@@ -64,12 +64,11 @@ RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
 # RUN echo "export KAIAAI_ROBOT=makerspet_snoopy" >> ~/.bashrc
 RUN echo "alias kaia='ros2 run kaiaai cli'" >> ~/.bashrc
 
-# RUN rm /*.sh
-COPY ./micro-ros_entrypoint.sh /
+RUN rm /*.sh
+COPY ./kaiaai-entrypoint.sh /
 COPY ./.bash_history /root
 
 EXPOSE 8888/udp
 # EXPOSE 5601/tcp
-ENTRYPOINT ["/bin/sh", "/micro-ros_entrypoint.sh"]
-# ENTRYPOINT ["/bin/sh", "/kaiaai-entrypoint.sh"]
+ENTRYPOINT ["/bin/sh", "/kaiaai-entrypoint.sh"]
 CMD ["bash"]
