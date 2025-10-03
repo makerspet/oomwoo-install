@@ -34,6 +34,7 @@ ros-jazzy-cartographer-ros \
 ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup \
 ros-jazzy-joint-state-publisher ros-jazzy-xacro
 
+# apt update && apt install -y ros-jazzy-turtlebot3 ros-jazzy-turtlebot3-simulations
 # &&  pip3 install websockets Pillow
 # rosdep installs python3-websockets which is too old
 
