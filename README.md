@@ -47,21 +47,21 @@ source install_docker_on_ubuntu.sh
 
 ### Download Latest Pre-Built Image
 - Docker Hub [image](https://hub.docker.com/r/kaiaai/kaiaai)
-  - Ubuntu `sudo docker pull kaiaai/kaiaai:iron`
-  - Windows command line `docker pull kaiaai/kaiaai:iron`
+  - Ubuntu `sudo docker pull kaiaai/kaiaai:jazzy`
+  - Windows command line `docker pull kaiaai/kaiaai:jazzy`
 
 ### Run Kaia.ai (create a container)
 - on Windows
   - open a command line window (or PowerShell or terminal)
   - `cd` to `docker\utils\`
-  - launch container `.\create_container_iron.cmd`
+  - launch container `.\start_jazzy.cmd`
   - open another command line window, `cd` to `docker\utils\`
   - launch an extra bash session `.\launch_bash.cmd`
   - be sure to install 
 - on Ubuntu
   - open a bash window
   - `cd` to `docker\utils\`
-  - launch container `source create_container_iron.sh`
+  - launch container `source start_jazzy.sh`
 
 
 # Advanced - how to rebuild images
