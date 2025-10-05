@@ -92,6 +92,10 @@ cd install\docker
 
 ## Release history
 
+### 10/4/2025
+
+- beta `kaiaai/kaiaai:jazzy` released
+
 ### 7/21/2025
 - added VNC server and Xfce, see https://github.com/makerspet/support/discussions/48
 
