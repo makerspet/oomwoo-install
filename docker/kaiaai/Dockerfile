@@ -47,14 +47,12 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
+&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_vac src/makerspet_vac \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet src/makerspet \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
-# &&  git clone --depth 1 https://github.com/kaiaai/diff_drive src/diff_drive \
-# &&  git clone --depth 1 https://github.com/kaiaai/diff_drive_robot/ src/diff_drive_robot \
-# &&  git clone https://github.com/kaiaai/diff_robot src/diff_robot \
 &&  rosdep install --from-paths src --ignore-src -y \
 &&  colcon build --symlink-install \
 &&  rm -rf log/
