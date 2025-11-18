@@ -32,9 +32,10 @@ ros-jazzy-ros2-controllers \
 ros-jazzy-joint-state-publisher-gui \
 ros-jazzy-cartographer-ros \
 ros-jazzy-joint-state-publisher ros-jazzy-xacro \
-apt install ros-jazzy-nav2* ros-jazzy-navigation2 \
+ros-jazzy-nav2* ros-jazzy-navigation2 \
 python3-websockets
-# ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup
+
+RUN apt update && apt upgrade -y
 
 # apt update && apt install -y ros-jazzy-turtlebot3 ros-jazzy-turtlebot3-simulations
 
