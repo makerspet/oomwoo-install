@@ -25,18 +25,13 @@ ENV MICROROS_DISABLE_SHM=1
 WORKDIR /ros_ws
 
 RUN apt install -y nano inotify-tools \
-ros-jazzy-ros-gz \
-ros-jazzy-gz-ros2-control \
-ros-jazzy-ros2-control \
-ros-jazzy-ros2-controllers \
-ros-jazzy-joint-state-publisher-gui \
-ros-jazzy-cartographer-ros \
-ros-jazzy-joint-state-publisher ros-jazzy-xacro \
-ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup \
-python3-websockets
+ros-jazzy-ros-gz ros-jazzy-gz-ros2-control ros-jazzy-ros2-control \
+ros-jazzy-ros2-controllers ros-jazzy-joint-state-publisher-gui \
+ros-jazzy-cartographer-ros ros-jazzy-joint-state-publisher ros-jazzy-xacro \
+ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup python3-websockets \
+ros-iron-navigation2 
 
-RUN apt install -y ros-jazzy-nav2*
-# RUN apt install -y ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-route
+# RUN apt install -y ros-jazzy-nav2-route
 
 RUN apt update && apt upgrade -y
 
