@@ -35,8 +35,8 @@ ros-jazzy-joint-state-publisher ros-jazzy-xacro \
 ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup \
 python3-websockets
 
-# RUN apt install -y ros-jazzy-nav2*
-RUN apt install -y ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-route
+RUN apt install -y ros-jazzy-nav2*
+# RUN apt install -y ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-route
 
 RUN apt update && apt upgrade -y
 
