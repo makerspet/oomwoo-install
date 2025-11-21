@@ -61,6 +61,8 @@ RUN . /opt/ros/jazzy/setup.sh \
 WORKDIR /ros_ws/src
 RUN find . -type d -name ".git" -exec rm -rf {} +
 
+WORKDIR /ros_ws
+
 RUN echo ". /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
 RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
