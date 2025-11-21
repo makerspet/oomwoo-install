@@ -2,7 +2,7 @@ FROM osrf/ros:jazzy-desktop
 
 WORKDIR /uros_ws
 
-RUN git clone --depth 1 -b jazzy https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup \
+RUN git clone -b jazzy https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup \
 &&  . /opt/ros/jazzy/setup.sh \
 &&  apt update \
 &&  apt install -y ed python3-pip \
@@ -38,25 +38,28 @@ RUN apt update && apt upgrade -y
 # apt update && apt install -y ros-jazzy-turtlebot3 ros-jazzy-turtlebot3-simulations
 
 RUN . /opt/ros/jazzy/setup.sh \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai src/kaiaai \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_fido src/makerspet_fido \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_vac src/makerspet_vac \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet src/makerspet \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
+&&  git clone -b jazzy https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
+&&  git clone -b jazzy https://github.com/kaiaai/kaiaai src/kaiaai \
+&&  git clone -b jazzy https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
+&&  git clone -b jazzy https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
+&&  git clone -b jazzy https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
+&&  git clone -b jazzy https://github.com/makerspet/makerspet_fido src/makerspet_fido \
+&&  git clone -b jazzy https://github.com/makerspet/makerspet_loki src/makerspet_loki \
+&&  git clone -b jazzy https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
+&&  git clone -b jazzy https://github.com/makerspet/makerspet_mini src/makerspet_mini \
+&&  git clone -b jazzy https://github.com/makerspet/makerspet_vac src/makerspet_vac \
+&&  git clone -b jazzy https://github.com/makerspet/makerspet src/makerspet \
+&&  git clone -b jazzy https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
+&&  git clone -b jazzy https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
+&&  git clone -b jazzy https://github.com/kaiaai/auto_mapper src/auto_mapper \
+&&  git clone -b jazzy https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
 &&  rosdep install --from-paths src --ignore-src -y \
 &&  colcon build --symlink-install \
 &&  rm -rf log/
 # rm -rf build/
+
+WORKDIR /ros_ws/src
+RUN find . -type d -name ".git" -exec rm -rf {} +
 
 RUN echo ". /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
