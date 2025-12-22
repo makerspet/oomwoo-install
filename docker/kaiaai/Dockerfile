@@ -29,7 +29,7 @@ ros-jazzy-ros-gz ros-jazzy-gz-ros2-control ros-jazzy-ros2-control \
 ros-jazzy-ros2-controllers ros-jazzy-joint-state-publisher-gui \
 ros-jazzy-cartographer-ros ros-jazzy-joint-state-publisher ros-jazzy-xacro \
 ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup python3-websockets \
-ros-jazzy-navigation2 
+ros-jazzy-navigation2 python3-socketio
 
 # RUN apt install -y ros-jazzy-nav2-route
 
