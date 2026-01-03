@@ -40,6 +40,7 @@ RUN apt update && apt upgrade -y
 RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai src/kaiaai \
+&&  git clone -b jazzy https://github.com/remakeai/remakeai_ros2 src/remakeai \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
