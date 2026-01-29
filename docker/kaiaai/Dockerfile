@@ -31,8 +31,6 @@ ros-jazzy-cartographer-ros ros-jazzy-joint-state-publisher ros-jazzy-xacro \
 ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup python3-websockets \
 ros-jazzy-navigation2 python3-socketio python3-httpx python3-click
 
-# RUN apt install -y ros-jazzy-nav2-route
-
 RUN apt update && apt upgrade -y
 
 # apt update && apt install -y ros-jazzy-turtlebot3 ros-jazzy-turtlebot3-simulations
@@ -69,6 +67,7 @@ RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
 RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
 # RUN echo "export KAIAAI_ROBOT=makerspet_snoopy" >> ~/.bashrc
 RUN echo "alias kaia='ros2 run kaiaai cli'" >> ~/.bashrc
+RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
 
 RUN rm /*.sh
 COPY ./kaiaai-entrypoint.sh /
