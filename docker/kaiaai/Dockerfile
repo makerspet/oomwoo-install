@@ -61,10 +61,11 @@ RUN . /opt/ros/jazzy/setup.sh \
 WORKDIR /ros_ws/src
 RUN find . -type d -name ".git" -exec rm -rf {} +
 
-# Install Remake SDK (CLI, Socket.IO client, container runtime, dashboard)
+# Install Remake SDK (CLI, Socket.IO client for ROS2 bridge)
+# Note: Using [ros2] extra - no podman needed inside container
 WORKDIR /root
-RUN git clone https://github.com/remakeai/remake-sdk.git remake-sdk \
-&&  pip install --break-system-packages -e remake-sdk[all] \
+RUN git clone -b main https://github.com/remakeai/remake-sdk \
+&&  pip install --break-system-packages -e "remake-sdk[ros2]" \
 &&  rm -rf remake-sdk/.git
 
 # Create maps directory
