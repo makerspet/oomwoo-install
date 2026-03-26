@@ -29,7 +29,8 @@ ros-jazzy-ros-gz ros-jazzy-gz-ros2-control ros-jazzy-ros2-control \
 ros-jazzy-ros2-controllers ros-jazzy-joint-state-publisher-gui \
 ros-jazzy-cartographer-ros ros-jazzy-joint-state-publisher ros-jazzy-xacro \
 ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup python3-websockets \
-ros-jazzy-navigation2 python3-socketio python3-httpx python3-click
+ros-jazzy-navigation2 python3-socketio python3-aiohttp python3-httpx \
+python3-click python3-flask
 
 RUN apt update && apt upgrade -y
 
@@ -38,7 +39,7 @@ RUN apt update && apt upgrade -y
 RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_msgs src/kaiaai_msgs \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai src/kaiaai \
-&&  git clone -b jazzy https://github.com/remakeai/remakeai_ros2 src/remakeai \
+&&  git clone -b jazzy https://github.com/remakeai/remake-ros2 src/remake-ros2 \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
@@ -60,6 +61,15 @@ RUN . /opt/ros/jazzy/setup.sh \
 WORKDIR /ros_ws/src
 RUN find . -type d -name ".git" -exec rm -rf {} +
 
+# Install Remake SDK (CLI, Socket.IO client, container runtime, dashboard)
+WORKDIR /root
+RUN git clone https://github.com/remakeai/remake-sdk.git remake-sdk \
+&&  pip install --break-system-packages -e remake-sdk[all] \
+&&  rm -rf remake-sdk/.git
+
+# Create maps directory
+RUN mkdir -p ~/maps
+
 WORKDIR /ros_ws
 
 RUN echo ". /opt/ros/jazzy/setup.bash" >> ~/.bashrc
@@ -67,13 +77,14 @@ RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
 RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
 # RUN echo "export KAIAAI_ROBOT=makerspet_snoopy" >> ~/.bashrc
 RUN echo "alias kaia='ros2 run kaiaai cli'" >> ~/.bashrc
-RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
+# RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
 
 RUN rm /*.sh
 COPY ./kaiaai-entrypoint.sh /
 COPY ./.bash_history /root
 
 EXPOSE 8888/udp
+EXPOSE 8788/tcp
 # EXPOSE 5601/tcp
 ENTRYPOINT ["/bin/sh", "/kaiaai-entrypoint.sh"]
 CMD ["bash"]
