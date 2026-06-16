@@ -30,7 +30,7 @@ ros-jazzy-ros2-controllers ros-jazzy-joint-state-publisher-gui \
 ros-jazzy-cartographer-ros ros-jazzy-joint-state-publisher ros-jazzy-xacro \
 ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup python3-websockets \
 ros-jazzy-navigation2 python3-socketio python3-aiohttp python3-httpx \
-python3-click python3-flask
+python3-click python3-flask ros-jazzy-robot-localization
 
 RUN apt update && apt upgrade -y
 
@@ -48,6 +48,8 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
 &&  git clone -b jazzy https://github.com/makerspet/makerspet_mini src/makerspet_mini \
 &&  git clone -b jazzy https://github.com/makerspet/makerspet_vac src/makerspet_vac \
+&&  git clone -b main https://github.com/makerspet/proscenic-m6pro src/proscenic_m6pro \
+&&  git clone https://github.com/remakeai/vacuum_ros2_bridge src/vacuum_ros2_bridge \
 &&  git clone -b jazzy https://github.com/makerspet/makerspet src/makerspet \
 &&  git clone -b jazzy https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
 &&  git clone -b jazzy https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
