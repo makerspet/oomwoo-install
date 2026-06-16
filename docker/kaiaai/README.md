@@ -2,7 +2,7 @@ This Docker file builds the [Kaia.ai](https://kaia.ai/) robot software platform 
 
 Please find the description, setup and operation details [here](https://github.com/kaiaai/kaiaai).
 
-A pre-built Docker image is available at [Docker Hub](https://hub.docker.com/r/kaiaai/kaiaai)
+A pre-built Docker image is available at [Docker Hub](https://hub.docker.com/r/makerspet/oomwoo)
 
 ## Re-building the Docker image
 If you would like to modify and/or rebuild this image:
@@ -10,5 +10,5 @@ If you would like to modify and/or rebuild this image:
 - optionally, edit the Dockerfile as you wish
 
 ```
-docker build --no-cache -t kaiaai/kaiaai:jazzy .
+docker build --no-cache -t makerspet/oomwoo:jazzy .
 ```

@@ -15,6 +15,6 @@ sudo docker run -it \
   --volume="$XAUTH:$XAUTH" \
   --net=host \
   --privileged \
-  kaiaai/kaiaai:iron
+  makerspet/oomwoo:iron
 
   echo "Done"

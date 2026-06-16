@@ -1,1 +1,1 @@
-docker push kaiaai/kaiaai:jazzy-dev
+docker push makerspet/oomwoo:jazzy-dev

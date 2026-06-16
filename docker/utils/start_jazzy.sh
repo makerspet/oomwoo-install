@@ -15,6 +15,6 @@ sudo docker run -it \
   --net=host \
   --privileged \
   --add-host="host.docker.internal:host-gateway" \
-  kaiaai/kaiaai:jazzy
+  makerspet/oomwoo:jazzy
 
   echo "Done"
