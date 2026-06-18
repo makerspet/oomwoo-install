@@ -1,1 +1,0 @@
-docker push makerspet/oomwoo:jazzy
