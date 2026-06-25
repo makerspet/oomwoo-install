@@ -1,4 +1,6 @@
 exit
+kaia config robot.model proscenic_m6pro
+kaia config robot.ip 192.168.1.238
 ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true map:=/ros_ws/src/kaiaai_gazebo/map/living_room.yaml
 ros2 launch kaiaai_bringup navigation.launch.py use_sim_time:=true slam:=True
 ros2 launch kaiaai_gazebo world.launch.py
@@ -10,5 +12,4 @@ ros2 launch kaiaai_bringup navigation.launch.py slam:=True
 ros2 launch kaiaai_bringup monitor_robot.launch.py
 ros2 run kaiaai_teleop teleop_keyboard
 ros2 launch kaiaai_bringup physical.launch.py
-ros2 launch vacuum_ros2_bridge bridge.launch.py
-kaia config robot.model proscenic_m6pro
+ros2 launch proscenic_m6pro bringup.launch.py
