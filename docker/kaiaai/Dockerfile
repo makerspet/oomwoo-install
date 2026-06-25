@@ -85,6 +85,7 @@ RUN echo "alias kaia='ros2 run kaiaai cli'" >> ~/.bashrc
 RUN rm /*.sh
 COPY ./kaiaai-entrypoint.sh /
 COPY ./.bash_history /root
+COPY ./.kaiaai.yaml /root
 
 EXPOSE 8888/udp
 EXPOSE 8788/tcp
