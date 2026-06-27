@@ -6,6 +6,10 @@ This package is using [kaiaai/install](https://github.com/kaiaai/install) as a t
 
 ## Release history
 
+### 6/26/2026
+- added https://github.com/remakeai/vacuum_ros2_bridge
+  - LiDAR compute moved to vacuum_ros2_bridge
+
 ### 6/18/2026
 - added bumper sensors for proscenic-m6pro
 - fixed Gazebo living world marble table collision mesh
