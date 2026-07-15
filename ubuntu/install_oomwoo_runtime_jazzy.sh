@@ -135,7 +135,11 @@ prepare_workspace() {
 }
 
 build_workspace() {
+  # ROS 2's setup.bash dereferences unset variables (AMENT_TRACE_SETUP_FILES),
+  # which aborts the script under the `set -u` above. Relax it for the source.
+  set +u
   . /opt/ros/jazzy/setup.bash
+  set -u
   cd "$WORKSPACE"
   rosdep install --from-paths src --ignore-src -y
   colcon build --symlink-install
