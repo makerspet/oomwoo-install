@@ -16,6 +16,7 @@ import select
 import signal
 import sys
 import time
+import tty
 from pathlib import Path
 
 
@@ -69,8 +70,14 @@ def main() -> int:
     args = parse_args()
     link = Path(args.link)
     master_fd, slave_fd = pty.openpty()
+    # Raw mode: a fresh PTY starts in canonical mode with ECHO on, so the slave
+    # line discipline echoes every frame we write back to the master. We then
+    # read our own heartbeats and ack them as phantom commands.
+    tty.setraw(slave_fd)
     slave_name = os.ttyname(slave_fd)
-    os.close(slave_fd)
+    # Keep the slave open for the lifetime of the process. Closing it leaves the
+    # PTY with no slave-side holder, and reads on the master then fail with EIO
+    # as soon as a client disconnects (or immediately, if none ever attaches).
     install_link(slave_name, link)
 
     running = True
@@ -130,6 +137,7 @@ def main() -> int:
         if link.exists() or link.is_symlink():
             link.unlink()
         os.close(master_fd)
+        os.close(slave_fd)
 
     return 0
 
