@@ -23,7 +23,7 @@ jobs:
     name: Static + unit checks
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Shell syntax
         run: |
@@ -62,7 +62,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.base_ref == 'jazzy'
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Free up disk (ROS + 10 repos + a full colcon build)
         run: |

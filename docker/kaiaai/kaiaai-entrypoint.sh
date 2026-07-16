@@ -1,3 +1,7 @@
+#!/bin/sh
+# Invoked by the image as: ENTRYPOINT ["/bin/sh", "/kaiaai-entrypoint.sh"]
+# Keep this POSIX sh -- the shebang declares the dialect for linting; the
+# explicit interpreter in ENTRYPOINT is what actually runs it.
 . "/opt/ros/$ROS_DISTRO/setup.sh"
 . "/uros_ws/install/local_setup.sh"
 . "/ros_ws/install/local_setup.sh"
