@@ -78,7 +78,8 @@ enable_updates_pocket() {
     return 0
   fi
 
-  src=/etc/apt/sources.list.d/ubuntu.sources
+  # Overridable so CI can exercise this against a fixture instead of the host.
+  src="${OOMWOO_APT_SOURCES:-/etc/apt/sources.list.d/ubuntu.sources}"
   if [[ -f "$src" ]] && ! grep -q "${codename}-updates" "$src"; then
     echo "Enabling ${codename}-updates (ROS 2 dependencies require it)."
     # Only the archive stanza lists the bare codename as its own token; the

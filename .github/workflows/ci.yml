@@ -1,0 +1,111 @@
+name: CI
+
+# Why this exists: the Pi runtime scaffold once shipped two runtime-fatal bugs
+# (a `set -u` abort that stopped the installer before it built anything, and a
+# PTY misuse that crashed the simulated MCU link) because the only verification
+# was `bash -n` and `py_compile` -- neither of which EXECUTES the code. Every
+# job here runs the thing.
+
+on:
+  push:
+    branches: [jazzy]
+  pull_request:
+  schedule:
+    - cron: '17 4 * * *'      # nightly, catches upstream apt/ROS drift
+  workflow_dispatch:
+
+env:
+  DEBIAN_FRONTEND: noninteractive   # never let apt block on a prompt
+
+jobs:
+  # ---------------------------------------------------------------- fast (~1m)
+  checks:
+    name: Static + unit checks
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          for f in $(git ls-files '*.sh'); do bash -n "$f" && echo "ok  bash -n $f"; done
+
+      - name: Shellcheck (errors only)
+        run: shellcheck -S error $(git ls-files '*.sh') && echo "ok  shellcheck"
+
+      - name: Python compiles
+        run: |
+          for f in $(git ls-files '*.py'); do python3 -m py_compile "$f" && echo "ok  py_compile $f"; done
+
+      - name: Guard -- set -u must stay relaxed around the ROS setup source
+        # Regression canary for the abort that stopped the installer before it
+        # built anything. ROS's setup.bash dereferences AMENT_TRACE_SETUP_FILES.
+        run: |
+          if ! grep -Pzoq 'set \+u\s*\n\s*\. /opt/ros/jazzy/setup\.bash' ubuntu/install_oomwoo_runtime_jazzy.sh; then
+            echo "::error::build_workspace sources ROS setup.bash without 'set +u'; under 'set -u' this aborts the installer."
+            exit 1
+          fi
+          echo "ok  set +u guard present"
+
+      - name: Unit -- enable_updates_pocket
+        run: bash ci/test_updates_pocket.sh
+
+      - name: Functional -- simulated MCU serial link
+        run: python3 ci/test_sim_mcu_serial.py
+
+  # ------------------------------------------------- full install (arm64, ~30m)
+  install:
+    name: Full runtime install (arm64, real build)
+    # arm64 == the Pi's architecture, no emulation. Free on public repos.
+    runs-on: ubuntu-24.04-arm
+    # Only gate merges on the fast job; this one is slow, so let it run but
+    # don't make every push wait on it.
+    if: github.event_name != 'pull_request' || github.base_ref == 'jazzy'
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free up disk (ROS + 10 repos + a full colcon build)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc || true
+          df -h /
+
+      - name: Reproduce the broken-image condition (strip noble-updates)
+        # The Pi image that blocked the ROS install carried only noble +
+        # noble-security. Recreate that here so the repair is a real regression
+        # test rather than a fixture.
+        run: |
+          sudo sed -i -E '/^Suites:/ s/ noble-updates//; /^Suites:/ s/ noble-backports//' \
+            /etc/apt/sources.list.d/ubuntu.sources
+          grep '^Suites:' /etc/apt/sources.list.d/ubuntu.sources
+
+      - name: Run the installer -- FULL, with the build
+        # NOT --skip-build: the `set -u` bug lived inside build_workspace(), so
+        # the obvious time-saving shortcut is exactly the one that misses it.
+        run: bash ubuntu/install_oomwoo_runtime_jazzy.sh
+
+      - name: Assert the updates pocket was repaired
+        run: |
+          grep -E '^Suites:.*noble-updates' /etc/apt/sources.list.d/ubuntu.sources \
+            || { echo "::error::installer did not enable noble-updates"; exit 1; }
+          echo "ok  noble-updates restored by the installer"
+
+      - name: Assert the workspace actually built
+        run: |
+          set -euo pipefail
+          test -f "$HOME/oomwoo_runtime_ws/install/setup.bash" \
+            || { echo "::error::workspace was never built"; exit 1; }
+          set +u
+          source /opt/ros/jazzy/setup.bash
+          source "$HOME/oomwoo_runtime_ws/install/setup.bash"
+          set -u
+          for p in kaiaai kaiaai_msgs oomwoo_one vacuum_ros2_bridge; do
+            ros2 pkg list | grep -qx "$p" && echo "ok  $p" \
+              || { echo "::error::package missing after build: $p"; exit 1; }
+          done
+
+      - name: Assert the simulated MCU link runs on arm64
+        run: python3 ci/test_sim_mcu_serial.py
+
+      - name: Disk report
+        if: always()
+        run: df -h /
