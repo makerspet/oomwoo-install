@@ -151,7 +151,13 @@ prepare_workspace() {
 
   clone_or_update jazzy https://github.com/kaiaai/kaiaai_msgs "$WORKSPACE/src/kaiaai_msgs"
   clone_or_update jazzy https://github.com/kaiaai/kaiaai "$WORKSPACE/src/kaiaai"
-  clone_or_update jazzy https://github.com/kaiaai/kaiaai_bringup "$WORKSPACE/src/kaiaai_bringup"
+  # NOT kaiaai_bringup: it is the *local PC* half of the micro-ROS setup, where
+  # ESP32 robots (makerspet_mini/snoopy/loki) connect over WiFi. It exec_depends
+  # on rviz2, joint_state_publisher_gui, cartographer_ros, kaiaai_telemetry and
+  # every robot description -- none of which belong on an onboard runtime, and
+  # all of which pi4_4gb_runtime_plan.md explicitly excludes. It also cannot
+  # resolve here: those robot descriptions are not rosdep keys, so rosdep fails.
+  # The robot uses its own onboard launch instead.
   clone_or_update jazzy https://github.com/makerspet/makerspet_vac "$WORKSPACE/src/makerspet_vac"
   clone_or_update jazzy https://github.com/makerspet/makerspet "$WORKSPACE/src/makerspet"
   clone_or_update main https://github.com/makerspet/oomwoo-one "$WORKSPACE/src/oomwoo_one"
