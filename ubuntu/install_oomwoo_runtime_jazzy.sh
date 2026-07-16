@@ -64,6 +64,32 @@ require_ubuntu_2404() {
   fi
 }
 
+enable_updates_pocket() {
+  # ROS 2 debs are built against a *current* Ubuntu, i.e. release + updates.
+  # Images that ship only <codename> and <codename>-security leave the ROS
+  # dependencies unsatisfiable: a -security package can require a library whose
+  # fixed version is published only to -updates, so apt has no candidate for it.
+  # Enable the updates pocket, then bring the system in line with what the ROS
+  # debs were built against.
+  local codename src
+  codename="$(. /etc/os-release && echo "${UBUNTU_CODENAME:-}")"
+  if [[ -z "$codename" ]]; then
+    echo "Cannot detect the Ubuntu codename; skipping the updates-pocket check." >&2
+    return 0
+  fi
+
+  src=/etc/apt/sources.list.d/ubuntu.sources
+  if [[ -f "$src" ]] && ! grep -q "${codename}-updates" "$src"; then
+    echo "Enabling ${codename}-updates (ROS 2 dependencies require it)."
+    # Only the archive stanza lists the bare codename as its own token; the
+    # security stanza lists "<codename>-security", so it is left untouched.
+    sudo sed -i -E "/^Suites:/ { /(^|[[:space:]])${codename}([[:space:]]|\$)/ { /${codename}-updates/! s/\$/ ${codename}-updates/ } }" "$src"
+  fi
+
+  sudo apt update
+  sudo apt full-upgrade -y
+}
+
 install_ros_apt_source() {
   sudo apt update
   sudo apt install -y software-properties-common curl gnupg lsb-release
@@ -179,6 +205,7 @@ EOF
 
 main() {
   require_ubuntu_2404
+  enable_updates_pocket
   install_ros_apt_source
   install_runtime_packages
   init_rosdep_if_needed
