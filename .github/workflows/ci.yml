@@ -98,9 +98,20 @@ jobs:
           source /opt/ros/jazzy/setup.bash
           source "$HOME/oomwoo_runtime_ws/install/setup.bash"
           set -u
+          # Capture the list ONCE. Do not pipe it into `grep -q`: grep exits at
+          # the first match, `ros2 pkg list` then dies of SIGPIPE with a
+          # BrokenPipeError, and `set -o pipefail` turns that into a pipeline
+          # failure -- so a package that EXISTS gets reported missing. It only
+          # bites for packages early in the alphabet, where enough of the list
+          # is still unwritten to overflow the pipe buffer.
+          pkgs="$(ros2 pkg list)"
           for p in kaiaai kaiaai_msgs oomwoo_one vacuum_ros2_bridge; do
-            ros2 pkg list | grep -qx "$p" && echo "ok  $p" \
-              || { echo "::error::package missing after build: $p"; exit 1; }
+            if grep -qx "$p" <<<"$pkgs"; then
+              echo "ok  $p"
+            else
+              echo "::error::package missing after build: $p"
+              exit 1
+            fi
           done
 
       - name: Assert the simulated MCU link runs on arm64
