@@ -1,4 +1,19 @@
-# Open source vacuum cleaner robot - Docker and Ubuntu install
+<div align="center">
+
+# OOMWOO Install
+
+*Open-source robot vacuum you build yourself.*
+
+Docker · Ubuntu · ROS 2 Jazzy · Dev environment · Raspberry Pi runtime
+
+![License](https://img.shields.io/badge/license-Apache--2.0-blue)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+[![Part of OOMWOO](https://img.shields.io/badge/part%20of-OOMWOO-5eead4)](https://github.com/makerspet/oomwoo)
+
+</div>
+
+Docker and Ubuntu install for the [OOMWOO](https://github.com/makerspet/oomwoo)
+open-source robot vacuum software development environment.
 
 Tutorials:
 - Install/use OOMWOO software development environment [in simulation](https://makerspet.com/blog/simulate-the-proscenic-m6-pro-robot-vacuum-in-gazebo-with-ros-2/) (no hardware needed).
