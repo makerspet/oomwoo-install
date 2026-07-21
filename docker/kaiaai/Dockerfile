@@ -42,7 +42,7 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy --depth 1 https://github.com/remakeai/remake-ros2 src/remake-ros2 \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_bringup src/kaiaai_bringup \
+&&  git clone -b jazzy --depth 1 https://github.com/makerspet/oomwoo_bringup src/oomwoo_bringup \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_fido src/makerspet_fido \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \

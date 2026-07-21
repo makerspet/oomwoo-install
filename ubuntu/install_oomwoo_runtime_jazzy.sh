@@ -151,7 +151,7 @@ prepare_workspace() {
 
   clone_or_update jazzy https://github.com/kaiaai/kaiaai_msgs "$WORKSPACE/src/kaiaai_msgs"
   clone_or_update jazzy https://github.com/kaiaai/kaiaai "$WORKSPACE/src/kaiaai"
-  # NOT kaiaai_bringup: it is the *local PC* half of the micro-ROS setup, where
+  # NOT oomwoo_bringup: it is the *local PC* half of the micro-ROS setup, where
   # ESP32 robots (makerspet_mini/snoopy/loki) connect over WiFi. It exec_depends
   # on rviz2, joint_state_publisher_gui, cartographer_ros, kaiaai_telemetry and
   # every robot description -- none of which belong on an onboard runtime, and
