@@ -14,11 +14,17 @@ Visit [main project repo](https://github.com/makerspet/oomwoo).
 The current Docker image is a desktop development environment. For onboard robot
 work, see the lighter Raspberry Pi runtime scaffold:
 
-- [Pi 4/5 4GB runtime plan](docs/pi4_4gb_runtime_plan.md)
-- [Jazzy runtime install script](ubuntu/install_oomwoo_runtime_jazzy.sh)
+- [Raspberry Pi install script](ubuntu/install_oomwoo_runtime_jazzy.sh)
 - [simulated MCU serial I/O](ubuntu/tools/oomwoo_sim_mcu_serial.py)
 
 ## Release history
+
+### 7/21/2026
+- clean using an existing map; Boustrophedon, clunky, slow, fails often
+  - packages in makerspet/oomwoo-ros2-tools
+- added bumpers, verified working
+- added localization (kidnapped robot); not tested
+- forked kaiaai_gazebo, kaiaai_bringup to oomwoo_gazebo, oomwoo_bringup
 
 ### 7/8/2026
 - added a first Raspberry Pi 4/5 4GB runtime install plan
