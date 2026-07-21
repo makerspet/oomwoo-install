@@ -47,12 +47,11 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_vac src/makerspet_vac \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/proscenic-m6pro src/proscenic_m6pro \
 &&  git clone -b main --depth 1 https://github.com/makerspet/oomwoo-one src/oomwoo_one \
 &&  git clone -b jazzy --depth 1 https://github.com/remakeai/vacuum_ros2_bridge src/vacuum_ros2_bridge \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet src/makerspet \
-&&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_gazebo src/kaiaai_gazebo \
+&&  git clone -b jazzy --depth 1 https://github.com/makerspet/oomwoo_gazebo src/kaiaai_gazebo \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
