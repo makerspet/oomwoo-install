@@ -15,5 +15,5 @@ if [ "$MICROROS_DISABLE_SHM" = "1" ] ; then
 fi
 
 set -e
-echo "\033[31mVisit https://github.com/kaiaai/kaiaai for help\033[0m"
+echo "\033[31mVisit https://github.com/makerspet/oomwoo for help\033[0m"
 exec "$@"
