@@ -12,8 +12,8 @@ Raspberry Pi · ROS 2 · Docker · Ubuntu · Dev environment
 
 </div>
 
-Docker and Ubuntu install for the [OOMWOO](https://github.com/makerspet/oomwoo)
-open-source robot vacuum software development environment.
+Raspberry Pi software + development software for [OOMWOO](https://github.com/makerspet/oomwoo)
+open-source robot vacuum.
 
 ![oomwoo Open source vacuum cleaner placeholder illustration](https://github.com/makerspet/oomwoo/raw/main/assets/vacuum-no-dock-front.webp)
 
