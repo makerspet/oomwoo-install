@@ -15,17 +15,16 @@ Raspberry Pi · ROS 2 · Docker · Ubuntu · Dev environment
 Docker and Ubuntu install for the [OOMWOO](https://github.com/makerspet/oomwoo)
 open-source robot vacuum software development environment.
 
-Tutorials:
-- Install/use OOMWOO software development environment [in simulation](https://makerspet.com/blog/simulate-the-proscenic-m6-pro-robot-vacuum-in-gazebo-with-ros-2/) (no hardware needed).
-- Install/use a real (temp placeholder) vacuum cleaner
-[Part 1](https://makerspet.com/blog/tutorial-connect-robot-vacuum-cleaner-to-ros-2-proscenic-m6-pro/) and [Part 2](https://makerspet.com/blog/tutorial-part-2-drive-map-navigate-your-proscenic-m6-pro-in-ros-2/).
-- [Simulate](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/) OOMWOO One vacuum cleaner
-- Create a [Hello-World](https://makerspet.com/blog/write-your-first-oomwoo-ros-2-package/) OOMWOO software package (ROS2)
-- How to run [headless simulations](https://makerspet.com/blog/oomwoo-headless-sim-coverage-cleaning-llm-agents/) for LLM agents
-
-Visit [main project repo](https://github.com/makerspet/oomwoo).
-
 ![oomwoo Open source vacuum cleaner placeholder illustration](https://github.com/makerspet/oomwoo/raw/main/assets/vacuum-no-dock-front.webp)
+
+## Deploy on Raspberry Pi
+
+On your Raspberry Pi 4/5 2GB+ run
+
+```
+git clone https://github.com/makerspet/oomwoo-install
+source oomwoo-install/ubuntu/install_oomwoo_runtime_jazzy.sh
+```
 
 ## Get started with development
 
@@ -39,12 +38,14 @@ docker exec -it oomwoo bash
 ```
 
 From there:
-- **Simulate in Gazebo (headless):** [Simulate OOMWOO-One in Gazebo with ROS 2](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/)
-- **Run coverage cleaning (agent quickstart):** [Headless sim & coverage cleaning for LLM agents](https://makerspet.com/blog/oomwoo-headless-sim-coverage-cleaning-llm-agents/)
-- **All tutorials:** [makerspet.com/learn](https://makerspet.com/learn/)
-- **Questions & help:** [Discord](https://discord.gg/3y2JKz5T25)
-
-The dev image is built from [oomwoo-install](https://github.com/makerspet/oomwoo-install).
+- Simulate in Gazebo (headless): [Simulate OOMWOO-One](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/)  in Gazebo with ROS 2 (no hardware needed)
+- Write a [Hello-World](https://makerspet.com/blog/write-your-first-oomwoo-ros-2-package/) software package
+- Install, operate a real (temp placeholder) vacuum cleaner
+[Part 1](https://makerspet.com/blog/tutorial-connect-robot-vacuum-cleaner-to-ros-2-proscenic-m6-pro/) and [Part 2](https://makerspet.com/blog/tutorial-part-2-drive-map-navigate-your-proscenic-m6-pro-in-ros-2/).
+- [Simulate](https://makerspet.com/blog/simulate-the-proscenic-m6-pro-robot-vacuum-in-gazebo-with-ros-2/) temp vacuum cleaner 
+- Run coverage cleaning (agent quickstart): [Headless sim & coverage cleaning](https://makerspet.com/blog/oomwoo-headless-sim-coverage-cleaning-llm-agents/) for LLM agents
+- All tutorials: [makerspet.com/learn](https://makerspet.com/learn/)
+- Questions & help: [Discord](https://discord.gg/3y2JKz5T25)
 
 ## Commands reference
 
@@ -90,15 +91,6 @@ ros2 topic echo /bumper_left/contact ros_gz_interfaces/msg/Contacts   # front bu
 kaia config robot.model proscenic_m6pro
 ros2 launch proscenic_m6pro bringup.launch.py robot_ip:=<robot-ip>
 ros2 launch oomwoo_bringup navigation.launch.py slam:=True
-```
-
-## Install Raspberry Pi runtime
-
-On your Raspberry Pi 4/5 2GB+ run
-
-```
-git clone https://github.com/makerspet/oomwoo-install
-source oomwoo-install/ubuntu/install_oomwoo_runtime_jazzy.sh
 ```
 
 ## Release history
