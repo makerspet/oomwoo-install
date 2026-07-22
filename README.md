@@ -26,7 +26,7 @@ git clone https://github.com/makerspet/oomwoo-install
 source oomwoo-install/ubuntu/install_oomwoo_runtime_jazzy.sh
 ```
 
-## Get started with development
+## Develop OOMWOO software - no hardware needed
 
 The quickest way to try OOMWOO is the ROS 2 development environment in Docker — no
 robot, GPU, or display required:
