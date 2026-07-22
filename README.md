@@ -4,7 +4,7 @@
 
 *Open-source robot vacuum you build yourself.*
 
-Docker · Ubuntu · ROS 2 Jazzy · Dev environment · Raspberry Pi runtime
+Raspberry Pi · ROS 2 · Docker · Ubuntu · Dev environment
 
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![Status](https://img.shields.io/badge/status-active-brightgreen)
@@ -17,20 +17,43 @@ open-source robot vacuum software development environment.
 
 Tutorials:
 - Install/use OOMWOO software development environment [in simulation](https://makerspet.com/blog/simulate-the-proscenic-m6-pro-robot-vacuum-in-gazebo-with-ros-2/) (no hardware needed).
-- Install/use OOMWOO software development environment using a real (temp placeholder) vacuum cleaner
+- Install/use a real (temp placeholder) vacuum cleaner
 [Part 1](https://makerspet.com/blog/tutorial-connect-robot-vacuum-cleaner-to-ros-2-proscenic-m6-pro/) and [Part 2](https://makerspet.com/blog/tutorial-part-2-drive-map-navigate-your-proscenic-m6-pro-in-ros-2/).
+- [Simulate](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/) OOMWOO One vacuum cleaner
+- Create a [Hello-World](https://makerspet.com/blog/write-your-first-oomwoo-ros-2-package/) OOMWOO software package (ROS2)
+- How to run [headless simulations](https://makerspet.com/blog/oomwoo-headless-sim-coverage-cleaning-llm-agents/) for LLM agents
 
 Visit [main project repo](https://github.com/makerspet/oomwoo).
 
 ![oomwoo Open source vacuum cleaner placeholder illustration](https://github.com/makerspet/oomwoo/raw/main/assets/vacuum-no-dock-front.webp)
 
-## Raspberry Pi runtime
+## Get started with development
 
-The current Docker image is a desktop development environment. For onboard robot
-work, see the lighter Raspberry Pi runtime scaffold:
+The quickest way to try OOMWOO is the ROS 2 development environment in Docker — no
+robot, GPU, or display required:
 
-- [Raspberry Pi install script](ubuntu/install_oomwoo_runtime_jazzy.sh)
-- [simulated MCU serial I/O](ubuntu/tools/oomwoo_sim_mcu_serial.py)
+```
+docker pull makerspet/oomwoo:jazzy-dev
+docker run -d --name oomwoo makerspet/oomwoo:jazzy-dev sleep infinity
+docker exec -it oomwoo bash
+```
+
+From there:
+- **Simulate in Gazebo (headless):** [Simulate OOMWOO-One in Gazebo with ROS 2](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/)
+- **Run coverage cleaning (agent quickstart):** [Headless sim & coverage cleaning for LLM agents](https://makerspet.com/blog/oomwoo-headless-sim-coverage-cleaning-llm-agents/)
+- **All tutorials:** [makerspet.com/learn](https://makerspet.com/learn/)
+- **Questions & help:** [Discord](https://discord.gg/3y2JKz5T25)
+
+The dev image is built from [oomwoo-install](https://github.com/makerspet/oomwoo-install).
+
+## Install Raspberry Pi runtime
+
+On your Raspberry Pi 4/5 2GB+ run
+
+```
+git clone https://github.com/makerspet/oomwoo-install
+source oomwoo-install/ubuntu/install_oomwoo_runtime_jazzy.sh
+```
 
 ## Release history
 
