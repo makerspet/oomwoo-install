@@ -46,6 +46,52 @@ From there:
 
 The dev image is built from [oomwoo-install](https://github.com/makerspet/oomwoo-install).
 
+## Commands reference
+
+Run these inside the dev container (`docker exec -it oomwoo bash`). The default robot
+model is `oomwoo_one`; switch it with `kaia config robot.model <package>` or a
+`robot_model:=<package>` launch argument.
+
+**Simulate in Gazebo**
+```
+ros2 launch oomwoo_gazebo world.launch.py                 # with the Gazebo GUI (needs a display)
+ros2 launch oomwoo_gazebo world.launch.py headless:=true  # headless (Docker / CI, no display)
+```
+
+**Drive the robot**
+```
+ros2 run kaiaai_teleop teleop_keyboard                                       # keyboard teleop
+ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.2}}'   # or publish velocity
+```
+
+**Map & navigate (SLAM)** — with a world running, in another terminal
+```
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true slam:=True             # build a map
+ros2 run nav2_map_server map_saver_cli -f ~/maps/map                                      # save the map
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true map:=~/maps/map.yaml   # navigate a saved map
+ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true                     # RViz view
+```
+
+**Coverage cleaning (headless)**
+```
+ros2 launch oomwoo_sim_support coverage_regression.launch.py   # sim + Nav2 + coverage planner + meter
+ros2 topic echo /coverage_meter/ratio                          # coverage fraction, 0.0 -> 1.0
+```
+See the [headless sim & coverage cleaning](https://makerspet.com/blog/oomwoo-headless-sim-coverage-cleaning-llm-agents/) quickstart for the agent/CI workflow.
+
+**Inspect sensors**
+```
+ros2 topic echo /scan                                                 # 2D LiDAR
+ros2 topic echo /bumper_left/contact ros_gz_interfaces/msg/Contacts   # front bumpers
+```
+
+**Physical robot (placeholder Proscenic M6 Pro)** — see the [connect](https://makerspet.com/blog/tutorial-connect-robot-vacuum-cleaner-to-ros-2-proscenic-m6-pro/) and [drive, map &amp; navigate](https://makerspet.com/blog/tutorial-part-2-drive-map-navigate-your-proscenic-m6-pro-in-ros-2/) tutorials
+```
+kaia config robot.model proscenic_m6pro
+ros2 launch proscenic_m6pro bringup.launch.py robot_ip:=<robot-ip>
+ros2 launch oomwoo_bringup navigation.launch.py slam:=True
+```
+
 ## Install Raspberry Pi runtime
 
 On your Raspberry Pi 4/5 2GB+ run

@@ -83,6 +83,18 @@ RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
 RUN echo "alias kaia='ros2 run kaiaai cli'" >> ~/.bashrc
 # RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
 
+# 'kaia' as a real command on PATH so it works in non-interactive shells and
+# scripts too (agents, CI), not only the interactive .bashrc alias above.
+RUN printf '%s\n' \
+    '#!/bin/sh' \
+    'if ! ros2 pkg prefix kaiaai >/dev/null 2>&1; then' \
+    '  . /opt/ros/jazzy/setup.sh' \
+    '  . /ros_ws/install/setup.sh' \
+    'fi' \
+    'exec ros2 run kaiaai cli "$@"' \
+    > /usr/local/bin/kaia \
+ && chmod +x /usr/local/bin/kaia
+
 RUN rm /*.sh
 COPY ./kaiaai-entrypoint.sh /
 COPY ./.bash_history /root
