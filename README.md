@@ -26,6 +26,17 @@ git clone https://github.com/makerspet/oomwoo-install
 source oomwoo-install/ubuntu/install_oomwoo_runtime_jazzy.sh
 ```
 
+Measure the onboard runtime before changing the minimum Pi/CM memory profile:
+
+```bash
+oomwoo-runtime-benchmark record --help
+oomwoo-runtime-benchmark compare --help
+```
+
+The [Pi runtime benchmark guide](docs/pi_runtime_benchmark.md) covers repeatable
+idle, 5 Hz SLAM, and Nav2 runs, ROS 2 composition comparisons, and the measured
+decision gate for a lower-cost 2 GB target.
+
 ## Develop OOMWOO software - no hardware needed
 
 The quickest way to try OOMWOO is the ROS 2 development environment in Docker — no
