@@ -52,6 +52,7 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy --depth 1 https://github.com/remakeai/vacuum_ros2_bridge src/vacuum_ros2_bridge \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet src/makerspet \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/oomwoo_gazebo src/oomwoo_gazebo \
+&&  git clone -b main --depth 1 https://github.com/makerspet/oomwoo-ros2-tools src/oomwoo-ros2-tools \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/m-explore-ros2 src/m-explore-ros2 \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/auto_mapper src/auto_mapper \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/nav2_wfe src/nav2_wfe \
