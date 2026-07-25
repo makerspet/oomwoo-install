@@ -106,6 +106,21 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 7/24/2026
+- Rviz shows cleaning plan
+  - `ros2 launch oomwoo_bringup monitor_robot.launch.py`
+  - add `/coverage_planner/plan`, Fixed Frame = map
+- reactive navigation for cleaning
+  - experimental, replaces Nav2 for cleaning tasks
+
+```
+ros2 launch oomwoo_sim_support coverage_regression.launch.py gui:=true \
+  world:=$(ros2 pkg prefix oomwoo_gazebo)/share/oomwoo_gazebo/worlds/living_room.world \
+  map:=$(ros2 pkg prefix oomwoo_sim_support)/share/oomwoo_sim_support/maps/living_room.yaml \
+  x_pose:=0.32 y_pose:=1.59 executor:=reactive
+
+```
+
 ### 7/21/2026
 - clean using an existing map; Boustrophedon, clunky, slow, fails often
   - packages in makerspet/oomwoo-ros2-tools
