@@ -18,7 +18,7 @@ Options:
 
 This script is a first Raspberry Pi 4/5 4GB runtime scaffold for OOMWOO. It
 installs ROS2 Jazzy runtime packages, avoids desktop/Gazebo tooling, prepares a
-minimal workspace, and installs a simulated CPU-MCU serial helper.
+minimal workspace, and installs benchmark plus simulated CPU-MCU serial tools.
 EOF
 }
 
@@ -178,14 +178,16 @@ build_workspace() {
   rm -rf log/
 }
 
-install_sim_serial() {
-  if [[ "$INSTALL_SIM_SERIAL" -eq 0 ]]; then
-    return
-  fi
-
+install_runtime_tools() {
   local script_dir
   script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   mkdir -p "$HOME/.local/bin"
+  install -m 0755 "$script_dir/tools/oomwoo_runtime_benchmark.py" \
+    "$HOME/.local/bin/oomwoo-runtime-benchmark"
+
+  if [[ "$INSTALL_SIM_SERIAL" -eq 0 ]]; then
+    return
+  fi
   install -m 0755 "$script_dir/tools/oomwoo_sim_mcu_serial.py" \
     "$HOME/.local/bin/oomwoo-sim-mcu-serial"
 }
@@ -216,7 +218,7 @@ main() {
   install_runtime_packages
   init_rosdep_if_needed
   prepare_workspace
-  install_sim_serial
+  install_runtime_tools
 
   if [[ "$SKIP_BUILD" -eq 0 ]]; then
     build_workspace
@@ -231,6 +233,8 @@ OOMWOO Jazzy runtime scaffold installed.
 Workspace: $WORKSPACE
 Simulated MCU serial:
   oomwoo-sim-mcu-serial --link /tmp/oomwoo-mcu-serial
+Runtime benchmark:
+  oomwoo-runtime-benchmark --help
 
 Open a new shell or run:
   source ~/.bashrc

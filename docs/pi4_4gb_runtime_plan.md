@@ -100,6 +100,15 @@ Use `--skip-build` when iterating on the script or testing package selection.
 
 ## Measurement Plan
 
+The executable benchmark harness is installed as:
+
+```bash
+oomwoo-runtime-benchmark --help
+```
+
+See [Raspberry Pi Runtime Benchmark](pi_runtime_benchmark.md) for the canonical
+record/compare workflow, report schema, 2 GB budget, and cost decision gate.
+
 After the runtime install works on a 4 GB board:
 
 1. Boot cleanly and record baseline memory after login.
@@ -112,7 +121,7 @@ After the runtime install works on a 4 GB board:
 8. Repeat after ROS2 composition/process-layout changes.
 9. Only then decide whether a C++ or Rust/rclrs port is justified.
 
-The related benchmark scaffold lives in:
+The planning templates and contributor benchmark scaffold also live in:
 
 ```text
 makerspet/oomwoo/contributions/compute-benchmark
