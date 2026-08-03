@@ -48,8 +48,8 @@ docker run -d --name oomwoo makerspet/oomwoo:jazzy-dev sleep infinity
 docker exec -it oomwoo bash
 ```
 
-From there:
-- Simulate in Gazebo (headless): [Simulate OOMWOO-One](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/)  in Gazebo with ROS 2 (no hardware needed)
+## Tutorials
+- Simulate vacuum in Gazebo: [Simulate OOMWOO-One](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/) in Gazebo with ROS 2 (no hardware needed)
 - Write a [Hello-World](https://makerspet.com/blog/write-your-first-oomwoo-ros-2-package/) software package
 - Install, operate a real (temp placeholder) vacuum cleaner
 [Part 1](https://makerspet.com/blog/tutorial-connect-robot-vacuum-cleaner-to-ros-2-proscenic-m6-pro/) and [Part 2](https://makerspet.com/blog/tutorial-part-2-drive-map-navigate-your-proscenic-m6-pro-in-ros-2/).
