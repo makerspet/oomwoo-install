@@ -76,7 +76,6 @@ WORKDIR /ros_ws
 RUN echo ". /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
 RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
-# RUN echo "export KAIAAI_ROBOT=makerspet_snoopy" >> ~/.bashrc
 # RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
 
 # 'kaia' as a real command on PATH so it works in every shell context --
