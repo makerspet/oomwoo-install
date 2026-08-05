@@ -159,7 +159,7 @@ prepare_workspace() {
   # resolve here: those robot descriptions are not rosdep keys, so rosdep fails.
   # The robot uses its own onboard launch instead.
   clone_or_update jazzy https://github.com/makerspet/makerspet "$WORKSPACE/src/makerspet"
-  clone_or_update main https://github.com/makerspet/oomwoo-one "$WORKSPACE/src/oomwoo_one"
+  clone_or_update jazzy https://github.com/makerspet/oomwoo-one "$WORKSPACE/src/oomwoo_one"
   clone_or_update jazzy https://github.com/remakeai/vacuum_ros2_bridge "$WORKSPACE/src/vacuum_ros2_bridge"
   clone_or_update jazzy https://github.com/kaiaai/nav2_wfe "$WORKSPACE/src/nav2_wfe"
   clone_or_update jazzy https://github.com/kaiaai/auto_mapper "$WORKSPACE/src/auto_mapper"

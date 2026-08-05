@@ -48,7 +48,7 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/proscenic-m6pro src/proscenic_m6pro \
-&&  git clone -b main --depth 1 https://github.com/makerspet/oomwoo-one src/oomwoo_one \
+&&  git clone -b jazzy --depth 1 https://github.com/makerspet/oomwoo-one src/oomwoo_one \
 &&  git clone -b jazzy --depth 1 https://github.com/remakeai/vacuum_ros2_bridge src/vacuum_ros2_bridge \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet src/makerspet \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/oomwoo_gazebo src/oomwoo_gazebo \
