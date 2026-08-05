@@ -43,9 +43,6 @@ RUN . /opt/ros/jazzy/setup.sh \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_telemetry src/kaiaai_telemetry \
 &&  git clone -b jazzy --depth 1 https://github.com/kaiaai/kaiaai_teleop src/kaiaai_teleop \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/oomwoo_bringup src/oomwoo_bringup \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_fido src/makerspet_fido \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_loki src/makerspet_loki \
-&&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_snoopy src/makerspet_snoopy \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/makerspet_mini src/makerspet_mini \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/proscenic-m6pro src/proscenic_m6pro \
 &&  git clone -b jazzy --depth 1 https://github.com/makerspet/oomwoo-one src/oomwoo_one \
@@ -79,7 +76,6 @@ WORKDIR /ros_ws
 RUN echo ". /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
 RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
-# RUN echo "export KAIAAI_ROBOT=makerspet_snoopy" >> ~/.bashrc
 # RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
 
 # 'kaia' as a real command on PATH so it works in every shell context --
