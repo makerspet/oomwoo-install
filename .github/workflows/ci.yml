@@ -120,3 +120,58 @@ jobs:
       - name: Disk report
         if: always()
         run: df -h /
+
+  # ------------------------------------------ dev Docker image (build + push)
+  docker-image:
+    name: Build & push dev image (makerspet/oomwoo:jazzy-dev)
+    runs-on: ubuntu-24.04
+    # On jazzy pushes and manual runs; never from a PR (fork PRs get no secrets,
+    # and we don't publish unmerged code). Add 'schedule' to the list below to
+    # also refresh the image nightly against upstream repo changes.
+    if: >-
+      github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check Docker Hub credentials
+        id: creds
+        env:
+          TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN not set -- skipping image build & push. See docker/kaiaai/README.md."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Free up disk (the dev image is ~9.5 GB)
+        if: steps.creds.outputs.ok == 'true'
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          df -h /
+
+      - name: Set up Buildx
+        if: steps.creds.outputs.ok == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: steps.creds.outputs.ok == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push makerspet/oomwoo:jazzy-dev
+        if: steps.creds.outputs.ok == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: docker/kaiaai
+          push: true
+          # the image clones the LATEST of ~15 upstream repos at build time;
+          # layer caching would pin stale clones, so build clean for "latest".
+          no-cache: true
+          provenance: true          # matches docker/utils/attest_jazzy_dev.sh
+          tags: makerspet/oomwoo:jazzy-dev
