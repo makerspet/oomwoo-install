@@ -106,6 +106,22 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/8/2026
+- added rudimentary reactive cleaning along the wall by "bumping out" the wall
+  - works, LiDAR is not used
+  - "bumping out" is needed when furniture has covers that appear solid in LiDAR scans, but the vacuum can still get under the furniture cover (e.g. to clean under the sofa)
+- fixed oomwoo-one URDF bumper height to match the vacuum cylinder body height
+- upgraded kaia CLI to manage configuration variables
+
+```
+ros2 launch oomwoo_gazebo world.launch.py
+ros2 launch oomwoo_bringup monitor_robot.launch.py
+ros2 run kaiaai_teleop teleop_keyboard
+# Point the vacuum at the wall to be cleaned
+kaia set clean.arc_omega 0.1
+ros2 launch oomwoo_clean wall_clean.launch.py use_sim_time:=true
+```
+
 ### 7/24/2026
 - Rviz shows cleaning plan
   - `ros2 launch oomwoo_bringup monitor_robot.launch.py`
