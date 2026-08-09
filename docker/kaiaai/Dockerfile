@@ -77,13 +77,13 @@ WORKDIR /ros_ws
 # ([ -z "$PS1" ] && return), so sourcing only from there left
 # `docker exec <ctr> bash -c "ros2 ..."` without ros2 on PATH.
 #
-# ros_env.sh and .bashrc are real files in this directory rather than shell
-# heredocs, so the shell setup is readable at a glance in the repo. Note that
-# .bashrc is a vendored copy of the base image's stock Ubuntu one plus a single
-# source line: it will not track upstream changes to that file automatically.
+# ros_env.sh is a real file in this directory rather than a shell heredoc, so
+# the shell setup is readable at a glance in the repo. ~/.bashrc is only
+# appended to, never replaced, so it keeps tracking the base image's stock
+# Ubuntu version instead of freezing a vendored copy of it here.
 COPY ./ros_env.sh /etc/ros_env.sh
-COPY ./.bashrc /root/.bashrc
-RUN echo '. /etc/ros_env.sh' > /etc/profile.d/ros_env.sh
+RUN echo '. /etc/ros_env.sh' >> ~/.bashrc \
+ && echo '. /etc/ros_env.sh' > /etc/profile.d/ros_env.sh
 # RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
 
 # Bash reads $BASH_ENV at startup for non-interactive, non-login shells.
@@ -92,16 +92,17 @@ RUN echo '. /etc/ros_env.sh' > /etc/profile.d/ros_env.sh
 ENV BASH_ENV=/etc/ros_env.sh
 
 # 'kaia' as a real command on PATH so it works in every shell context --
-# interactive, non-interactive, scripts, agents, CI.
-RUN printf '%s\n' \
-    '#!/bin/sh' \
-    'if ! ros2 pkg prefix kaiaai >/dev/null 2>&1; then' \
-    '  . /opt/ros/jazzy/setup.sh' \
-    '  . /ros_ws/install/setup.sh' \
-    'fi' \
-    'exec ros2 run kaiaai cli "$@"' \
-    > /usr/local/bin/kaia \
- && chmod +x /usr/local/bin/kaia
+# interactive, non-interactive, scripts, agents, CI. Kept as kaia.sh in the
+# build context so the repo's `bash -n` / shellcheck CI gates (which glob
+# '*.sh') lint it; installed without the extension because it is the
+# user-facing command name.
+COPY ./kaia.sh /usr/local/bin/kaia
+# chmod explicitly rather than relying on the checked-out file's mode. kaia.sh
+# is stored in git as 100644, so COPY alone leaves it non-executable on a Linux
+# builder (which is what CI uses) and `kaia` would die with "Permission denied"
+# (exit 126). A Windows build context happens to normalise everything to 0755,
+# so this failure would NOT reproduce locally -- only in CI.
+RUN chmod +x /usr/local/bin/kaia
 
 RUN rm /*.sh
 COPY ./kaiaai-entrypoint.sh /
