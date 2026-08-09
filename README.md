@@ -106,6 +106,11 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/9/2026
+
+- fixed non-interactive bash to have same context as interactive
+  - that caused OpenGL go missing, broke LiDAR scans in headless Gazebo simulations
+
 ### 8/8/2026
 - added rudimentary reactive cleaning along the wall by "bumping out" the wall
   - works, LiDAR is not used
