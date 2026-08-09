@@ -37,7 +37,7 @@ The [Pi runtime benchmark guide](docs/pi_runtime_benchmark.md) covers repeatable
 idle, 5 Hz SLAM, and Nav2 runs, ROS 2 composition comparisons, and the measured
 decision gate for a lower-cost 2 GB target.
 
-## Develop OOMWOO software - no hardware needed
+## Develop on Linux/Windows WSL2 - no hardware needed
 
 The quickest way to try OOMWOO is the ROS 2 development environment in Docker — no
 robot, GPU, or display required:
@@ -47,6 +47,10 @@ docker pull makerspet/oomwoo:jazzy-dev
 docker run -d --name oomwoo makerspet/oomwoo:jazzy-dev sleep infinity
 docker exec -it oomwoo bash
 ```
+
+## Develop on Mac
+
+See [Mac pixi instructions](https://github.com/makerspet/oomwoo/tree/main/contributions/mac-dev-env/DingoOz).
 
 ## Tutorials
 - Simulate vacuum in Gazebo: [Simulate OOMWOO-One](https://makerspet.com/blog/simulate-oomwoo-one-robot-vacuum-in-gazebo-with-ros-2/) in Gazebo with ROS 2 (no hardware needed)
