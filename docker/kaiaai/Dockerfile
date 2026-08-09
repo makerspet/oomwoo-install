@@ -72,10 +72,31 @@ RUN mkdir -p ~/maps
 
 WORKDIR /ros_ws
 
-RUN echo ". /opt/ros/jazzy/setup.bash" >> ~/.bashrc
-RUN echo ". /uros_ws/install/setup.bash" >> ~/.bashrc
-RUN echo ". /ros_ws/install/setup.bash" >> ~/.bashrc
+# ROS env for every shell context -- interactive, non-interactive, login,
+# scripts, agents, CI. Stock ~/.bashrc returns early when non-interactive
+# ([ -z "$PS1" ] && return), so sourcing only from there left
+# `docker exec <ctr> bash -c "ros2 ..."` without ros2 on PATH.
+RUN printf '%s\n' \
+    '# Single source of truth for the ROS env in this image.' \
+    '# Guarded: nested shells inherit the exported flag and skip re-sourcing,' \
+    '# which avoids PATH bloat and repeated ~1s startup cost.' \
+    'if [ -z "$OOMWOO_ROS_ENV" ]; then' \
+    '  # stdout kept clean so `bash -c` output stays machine-parseable' \
+    '  { . /opt/ros/jazzy/setup.bash' \
+    '    . /uros_ws/install/setup.bash' \
+    '    . /ros_ws/install/setup.bash' \
+    '  } > /dev/null' \
+    '  export OOMWOO_ROS_ENV=1' \
+    'fi' \
+    > /etc/ros_env.sh \
+ && echo '. /etc/ros_env.sh' >> ~/.bashrc \
+ && echo '. /etc/ros_env.sh' > /etc/profile.d/ros_env.sh
 # RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
+
+# Bash reads $BASH_ENV at startup for non-interactive, non-login shells.
+# This is the line that makes `docker exec <ctr> bash -c "ros2 topic list"` work.
+# (~/.bashrc covers interactive; /etc/profile.d covers login shells.)
+ENV BASH_ENV=/etc/ros_env.sh
 
 # 'kaia' as a real command on PATH so it works in every shell context --
 # interactive, non-interactive, scripts, agents, CI.
