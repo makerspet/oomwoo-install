@@ -76,26 +76,19 @@ WORKDIR /ros_ws
 # scripts, agents, CI. Stock ~/.bashrc returns early when non-interactive
 # ([ -z "$PS1" ] && return), so sourcing only from there left
 # `docker exec <ctr> bash -c "ros2 ..."` without ros2 on PATH.
-RUN printf '%s\n' \
-    '# Single source of truth for the ROS env in this image.' \
-    '# Guarded: nested shells inherit the exported flag and skip re-sourcing,' \
-    '# which avoids PATH bloat and repeated ~1s startup cost.' \
-    'if [ -z "$OOMWOO_ROS_ENV" ]; then' \
-    '  # stdout kept clean so `bash -c` output stays machine-parseable' \
-    '  { . /opt/ros/jazzy/setup.bash' \
-    '    . /uros_ws/install/setup.bash' \
-    '    . /ros_ws/install/setup.bash' \
-    '  } > /dev/null' \
-    '  export OOMWOO_ROS_ENV=1' \
-    'fi' \
-    > /etc/ros_env.sh \
- && echo '. /etc/ros_env.sh' >> ~/.bashrc \
- && echo '. /etc/ros_env.sh' > /etc/profile.d/ros_env.sh
+#
+# ros_env.sh and .bashrc are real files in this directory rather than shell
+# heredocs, so the shell setup is readable at a glance in the repo. Note that
+# .bashrc is a vendored copy of the base image's stock Ubuntu one plus a single
+# source line: it will not track upstream changes to that file automatically.
+COPY ./ros_env.sh /etc/ros_env.sh
+COPY ./.bashrc /root/.bashrc
+RUN echo '. /etc/ros_env.sh' > /etc/profile.d/ros_env.sh
 # RUN echo "alias remake='ros2 run remakeai remake'" >> ~/.bashrc
 
 # Bash reads $BASH_ENV at startup for non-interactive, non-login shells.
 # This is the line that makes `docker exec <ctr> bash -c "ros2 topic list"` work.
-# (~/.bashrc covers interactive; /etc/profile.d covers login shells.)
+# (/root/.bashrc covers interactive; /etc/profile.d covers login shells.)
 ENV BASH_ENV=/etc/ros_env.sh
 
 # 'kaia' as a real command on PATH so it works in every shell context --
