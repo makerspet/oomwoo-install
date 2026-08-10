@@ -110,10 +110,42 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/10/2026
+
+- added more sensors to oomwoo-one URDF (Gazebo simulation)
+  - front multizone ToF depth sensor (16x8 zones, 120° FoV, models two VL53L7CX) → `/tof_front/points`
+  - front stereo cameras (VGA, 120° FoV, OV5647-equivalent) → `/camera_left/image`, `/camera_right/image`
+  - IMU: gyro + accelerometer + orientation → `/imu`
+- added a simulation odometry source switch: ground-truth model pose (default) or wheel-encoder odometry
+  - the selected source drives `/odom` + `/tf`; the other is always published on `/odom_truth` / `/odom_wheel` so wheel slip can be measured later
+- documented oomwoo-one simulation sensors, topics, URDF parameters and world launch arguments in its [README](https://github.com/makerspet/oomwoo-one/blob/jazzy/README.md#simulation-sensors-topics--tuning)
+- gave the reactive bump-out cleaner its own `wall_clean_bump_out.launch.py`, freeing `wall_clean.launch.py` for the upcoming full wall following
+
+```
+ros2 launch oomwoo_gazebo world.launch.py                     # ground-truth odom (default)
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=wheel  # wheel-encoder odom, slip drifts
+ros2 topic echo /imu
+ros2 topic hz /tof_front/points
+ros2 run rqt_image_view rqt_image_view                        # view /camera_left/image
+```
+
+### 8/9/2026
+
+- wall-follow-bump-out now backs vacuum "out" the way the vacuum drove "in" - as opposed to backing "up" straight
+  - back-out retracing its path makes vacuum less likely to wedge somewhere new
+  - documentation https://github.com/makerspet/oomwoo-ros2-tools/blob/jazzy/docs/wall-follow-bump-out.md
+
 ### 8/9/2026
 
 - fixed non-interactive bash to have same context as interactive
   - that caused OpenGL go missing, broke LiDAR scans in headless Gazebo simulations
+- added side distance sensors to oomwoo-one URDF
+- kaia CLI sets ROS2 parameters, [documentation](https://github.com/kaiaai/kaiaai/blob/jazzy/docs/cli.md)
+
+```
+ros2 topic echo /range_right
+ros2 topic echo /range_left
+```
 
 ### 8/8/2026
 - added rudimentary reactive cleaning along the wall by "bumping out" the wall
@@ -127,8 +159,11 @@ ros2 launch oomwoo_gazebo world.launch.py
 ros2 launch oomwoo_bringup monitor_robot.launch.py
 ros2 run kaiaai_teleop teleop_keyboard
 # Point the vacuum at the wall to be cleaned
-kaia set clean.arc_omega 0.1
 ros2 launch oomwoo_clean wall_clean.launch.py use_sim_time:=true
+# Optional - wall clean bump-out settings
+# kaia set clean.arc_omega 0.1
+# kaia set clean.turn_right_deg 10
+# turn_right_deg / turn_left_deg / turn_both_deg 20/90/60
 ```
 
 ### 7/24/2026
