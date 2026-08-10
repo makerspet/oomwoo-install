@@ -112,6 +112,22 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/10/2026
 
+- added a tactile "bump map" — the truly-solid keep-out layer, built from the bumpers alone
+  - LiDAR/cameras see couch skirts, bed valances and curtains as solid, but a vacuum should clean under/through them; only a physical bump proves something is *truly* solid, so a coverage planner can still clean the rest
+  - the `bump_map` node turns bumper contacts into `/bump_map` (OccupancyGrid keep-out layer) + `/bump_map/walls` (RViz wall segments) + `/bump_event` (new `oomwoo_msgs/BumpEvent`: contact point, approach, which bumper side)
+  - contacts are placed along the robot's approach heading and accumulated; the map is in `map` when localized, else `odom`
+
+```
+ros2 launch oomwoo_gazebo world.launch.py
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true   # localize (map->odom)
+ros2 launch oomwoo_clean bump_map.launch.py use_sim_time:=true
+# point the vacuum at a wall, then bump-out clean to build the map
+ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true
+# RViz: add a Map on /bump_map and a MarkerArray on /bump_map/walls
+```
+
+### 8/10/2026
+
 - added more sensors to oomwoo-one URDF (Gazebo simulation)
   - front multizone ToF depth sensor (16x8 zones, 120° FoV, models two VL53L7CX) → `/tof_front/points`
   - front stereo cameras (VGA, 120° FoV, OV5647-equivalent) → `/camera_left/image`, `/camera_right/image`
