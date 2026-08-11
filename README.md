@@ -112,8 +112,23 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/11/2026
 
-- the Gazebo sim now starts with the stereo **cameras off by default** (heaviest sensor, unused for now) — faster out of the box; turn them on with `enable_cameras:=true`
-- `navigation.launch.py` can **auto-localize**: it seeds AMCL at the known start pose so the `map` frame is available without the manual RViz "2D Pose Estimate" (sim only by default). This unblocks bump-map wall-segment estimation, which needs the map frame
+- one RViz window for wall-segment estimation: `navigation.launch.py` now takes an `rviz_config` argument (just like `monitor_robot.launch.py`), and `bump_map.rviz` folds in the Nav2 displays (global/local costmaps, plans, AMCL particle swarm, Nav2 goal tool) on top of the bump-map layers
+  - launch navigation straight into the bump map — no second RViz window from `monitor_robot.launch.py`
+
+```
+ros2 launch oomwoo_gazebo world.launch.py
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
+  map:=/ros_ws/src/oomwoo_gazebo/map/living_room.yaml rviz_config:=bump_map.rviz
+ros2 launch oomwoo_clean bump_map.launch.py use_sim_time:=true
+ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true
+```
+
+### 8/11/2026
+
+- the Gazebo sim now starts with the stereo *cameras off by default* (heaviest sensor, unused for now) — faster out of the box; turn them on with `enable_cameras:=true`
+- `navigation.launch.py` can *auto-localize*: it seeds AMCL at the known start pose so the `map` frame is available without the manual RViz "2D Pose Estimate" (sim only by default). This unblocks bump-map wall-segment estimation, which needs the map frame
+  - auto-localize runs in simulations, when `use_sim_time:=true`
+  - force disable `auto_localize:=false`
 - added `bump_map.rviz` to visualize the bump map over the SLAM map
 
 ```
