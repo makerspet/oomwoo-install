@@ -114,13 +114,14 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 - one RViz window for wall-segment estimation: `navigation.launch.py` now takes an `rviz_config` argument (just like `monitor_robot.launch.py`), and `bump_map.rviz` folds in the Nav2 displays (global/local costmaps, plans, AMCL particle swarm, Nav2 goal tool) on top of the bump-map layers
   - launch navigation straight into the bump map — no second RViz window from `monitor_robot.launch.py`
+- `wall_clean_bump_out.launch.py` now *starts `bump_map.launch.py` for you* (pass `bump_map:=false` to skip) — one fewer terminal to build the tactile keep-out map while cleaning
+- `bump_map.rviz` decluttered for wall-segment estimation: the semi-transparent `/bump_map` keep-out overlay and the Global Planner / Controller costmap groups are now *off by default* (the red bump-wall segments stay on), and the top-down view is rotated to match the Gazebo default orientation
 
 ```
 ros2 launch oomwoo_gazebo world.launch.py
 ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
   map:=/ros_ws/src/oomwoo_gazebo/map/living_room.yaml rviz_config:=bump_map.rviz
-ros2 launch oomwoo_clean bump_map.launch.py use_sim_time:=true
-ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true
+ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true  # also starts bump_map
 ```
 
 ### 8/11/2026
