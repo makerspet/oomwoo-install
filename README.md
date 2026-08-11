@@ -112,7 +112,20 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/10/2026
 
+- added per-sensor on/off switches to speed up the Gazebo simulation
+  - the rendering sensors (cameras and the front ToF most of all, then the side ranges and LiDAR) slow the sim down; turn the ones you don't need off at launch
+  - the sensor frames stay in the model; only the gz sensor (the render cost) is dropped
+
+```
+ros2 launch oomwoo_gazebo world.launch.py enable_cameras:=false enable_tof:=false   # faster
+ros2 launch oomwoo_gazebo world.launch.py \
+  enable_ranges:=false enable_tof:=false enable_cameras:=false enable_imu:=false     # nav only (LiDAR)
+```
+
+### 8/10/2026
+
 - added an RViz config to eyeball all the sim sensors at once (LiDAR, side ranges, front ToF cloud, both cameras, bump map)
+  - except IMU
   - `monitor_robot.launch.py` now takes an `rviz_config` argument to pick any `.rviz` file from the robot package `rviz/` folder
 
 ```
@@ -129,8 +142,10 @@ ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true rviz_confi
 
 ```
 ros2 launch oomwoo_gazebo world.launch.py
-ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true   # localize (map->odom)
+# localize (map->odom)
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/map/living_room.yaml
 ros2 launch oomwoo_clean bump_map.launch.py use_sim_time:=true
+ros2 run kaiaai_teleop teleop_keyboard
 # point the vacuum at a wall, then bump-out clean to build the map
 ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true
 # RViz: add a Map on /bump_map and a MarkerArray on /bump_map/walls
