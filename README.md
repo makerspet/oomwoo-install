@@ -110,6 +110,20 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/11/2026
+
+- the Gazebo sim now starts with the stereo **cameras off by default** (heaviest sensor, unused for now) — faster out of the box; turn them on with `enable_cameras:=true`
+- `navigation.launch.py` can **auto-localize**: it seeds AMCL at the known start pose so the `map` frame is available without the manual RViz "2D Pose Estimate" (sim only by default). This unblocks bump-map wall-segment estimation, which needs the map frame
+- added `bump_map.rviz` to visualize the bump map over the SLAM map
+
+```
+ros2 launch oomwoo_gazebo world.launch.py
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
+  map:=/ros_ws/src/oomwoo_gazebo/map/living_room.yaml           # auto-localizes now
+ros2 launch oomwoo_clean bump_map.launch.py use_sim_time:=true
+ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true rviz_config:=bump_map.rviz
+```
+
 ### 8/10/2026
 
 - added per-sensor on/off switches to speed up the Gazebo simulation
