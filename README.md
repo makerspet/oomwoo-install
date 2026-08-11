@@ -112,6 +112,16 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/10/2026
 
+- added an RViz config to eyeball all the sim sensors at once (LiDAR, side ranges, front ToF cloud, both cameras, bump map)
+  - `monitor_robot.launch.py` now takes an `rviz_config` argument to pick any `.rviz` file from the robot package `rviz/` folder
+
+```
+ros2 launch oomwoo_gazebo world.launch.py
+ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true rviz_config:=sensors.rviz
+```
+
+### 8/10/2026
+
 - added a tactile "bump map" — the truly-solid keep-out layer, built from the bumpers alone
   - LiDAR/cameras see couch skirts, bed valances and curtains as solid, but a vacuum should clean under/through them; only a physical bump proves something is *truly* solid, so a coverage planner can still clean the rest
   - the `bump_map` node turns bumper contacts into `/bump_map` (OccupancyGrid keep-out layer) + `/bump_map/walls` (RViz wall segments) + `/bump_event` (new `oomwoo_msgs/BumpEvent`: contact point, approach, which bumper side)
