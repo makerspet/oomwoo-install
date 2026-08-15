@@ -117,6 +117,7 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 - `wall_clean_bump_out.launch.py` now *starts `bump_map.launch.py` for you* (pass `bump_map:=false` to skip) — one fewer terminal to build the tactile keep-out map while cleaning
 - `bump_map.rviz` decluttered for wall-segment estimation: the semi-transparent `/bump_map` keep-out overlay and the Global Planner / Controller costmap groups are now *off by default* (the red bump-wall segments stay on), and the top-down view is rotated to match the Gazebo default orientation; the Selection / Tool Properties / Views panes are hidden and the `/odom` heading arrow is shown so you can see which way the vacuum faces
 - wall cleaning cruise arc is now tuned by *radius* instead of angular rate: the `arc_omega` parameter is replaced by `arc_radius` (metres, default 1.5), and the turn rate is derived as `v_cruise / arc_radius` — so the arc shape stays the same at any cruise speed. Retune with `kaia set clean.arc_radius 1.0` (smaller = tighter into the wall). If you had set `clean.arc_omega`, switch it to `clean.arc_radius`
+- `bump_map` now builds its tactile map in the **`map` frame**: it starts in `odom`, then promotes to `map` the instant localization comes up and rebases the contacts captured so far — so the wall segments stay nailed to the map instead of drifting with the LiDAR scan when AMCL wobbles (the pure-bumper, no-localization mode stays in `odom`)
 
 ```
 ros2 launch oomwoo_gazebo world.launch.py
