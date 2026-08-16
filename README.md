@@ -110,6 +110,20 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/15/2026
+
+- localization A/B tooling for the "LiDAR scan vs map walls" misregistration: a new `localization_error` meter (in `oomwoo_sim_support`) scores a localizer's estimate against the sim's ground truth and logs `LOC_ERR pos/yaw` plus a windowed RMS, publishing `~/pos_err_m` / `~/yaw_err_deg` for plotting. It is localizer-agnostic — reads the `map→base` TF, or a pose topic like `/amcl_pose` with `estimate_topic:=…` — so the same meter scores AMCL and slam_toolbox alike. Run it with `odom_source:=truth`
+- `localization_compare.launch.py` runs **AMCL and slam_toolbox localization side by side**: slam_toolbox owns the `map→odom` TF while AMCL runs with `tf_broadcast:false` (only `/amcl_pose`), so there is no TF conflict, and two meters plot both error curves live. AMCL uses your unmodified `navigation.yaml`; slam_toolbox loads a serialized pose-graph (`mapper_params_localization.yaml`, localization mode)
+  - to make the graph: map with `slam:=True`, then `ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGraph "{filename: '…/living_room_serial'}"` and `map_saver_cli` from the same session so the pgm and the graph share an origin
+
+```
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=truth
+ros2 launch oomwoo_sim_support localization_compare.launch.py \
+  use_sim_time:=true map:=/maps/living_room.yaml
+ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true
+rqt_plot /loc_err_amcl/pos_err_m/data /loc_err_slam/pos_err_m/data
+```
+
 ### 8/11/2026
 
 - one RViz window for wall-segment estimation: `navigation.launch.py` now takes an `rviz_config` argument (just like `monitor_robot.launch.py`), and `bump_map.rviz` folds in the Nav2 displays (global/local costmaps, plans, AMCL particle swarm, Nav2 goal tool) on top of the bump-map layers
