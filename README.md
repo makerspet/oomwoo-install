@@ -114,7 +114,9 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 - Gazebo `living_room` world map includes `slam_toolbox` pose graph
 - Fixed `localization_compare.launch.py` launching second copy of Nav2
+- Fixed `localization_compare.launch.py` tracking the wrong odom ground_truth
 - Enabled FastDDS shared memory
+- Compared `slam_toolbox` scan matching with AMCL (linear, angular errors); tightened AMCL in `oomwoo_one/config/navigation.yaml`
 
 ### 8/15/2026
 
