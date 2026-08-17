@@ -110,6 +110,10 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/16/2026
+
+- Gazebo `living_room` world map includes `slam_toolbox` pose graph
+
 ### 8/15/2026
 
 - localization A/B tooling for the "LiDAR scan vs map walls" misregistration: a new `localization_error` meter (in `oomwoo_sim_support`) scores a localizer's estimate against the sim's ground truth and logs `LOC_ERR pos/yaw` plus a windowed RMS, publishing `~/pos_err_m` / `~/yaw_err_deg` for plotting. It is localizer-agnostic — reads the `map→base` TF, or a pose topic like `/amcl_pose` with `estimate_topic:=…` — so the same meter scores AMCL and slam_toolbox alike. Run it with `odom_source:=truth`
@@ -136,7 +140,7 @@ rqt_plot /loc_err_amcl/pos_err_m/data /loc_err_slam/pos_err_m/data
 ```
 ros2 launch oomwoo_gazebo world.launch.py
 ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
-  map:=/ros_ws/src/oomwoo_gazebo/map/living_room.yaml rviz_config:=bump_map.rviz
+  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml rviz_config:=bump_map.rviz
 ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true  # also starts bump_map
 ```
 
@@ -151,7 +155,7 @@ ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true  # als
 ```
 ros2 launch oomwoo_gazebo world.launch.py
 ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
-  map:=/ros_ws/src/oomwoo_gazebo/map/living_room.yaml           # auto-localizes now
+  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml           # auto-localizes now
 ros2 launch oomwoo_clean bump_map.launch.py use_sim_time:=true
 ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true rviz_config:=bump_map.rviz
 ```
@@ -189,7 +193,7 @@ ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true rviz_confi
 ```
 ros2 launch oomwoo_gazebo world.launch.py
 # localize (map->odom)
-ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/map/living_room.yaml
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
 ros2 launch oomwoo_clean bump_map.launch.py use_sim_time:=true
 ros2 run kaiaai_teleop teleop_keyboard
 # point the vacuum at a wall, then bump-out clean to build the map
