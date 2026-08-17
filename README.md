@@ -113,6 +113,8 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 ### 8/16/2026
 
 - Gazebo `living_room` world map includes `slam_toolbox` pose graph
+- Fixed `localization_compare.launch.py` launching second copy of Nav2
+- Enabled FastDDS shared memory
 
 ### 8/15/2026
 
@@ -123,9 +125,11 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 ```
 ros2 launch oomwoo_gazebo world.launch.py odom_source:=truth
 ros2 launch oomwoo_sim_support localization_compare.launch.py \
-  use_sim_time:=true map:=/maps/living_room.yaml
+  use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+ros2 run kaiaai_teleop teleop_keyboard
+ros2 run rqt_plot rqt_plot  # add /loc_err_amcl/pos_err_m/data /loc_err_slam/pos_err_m/data
+# ros2 run plotjuggler plotjuggler --layout /path/to/layout.xml
 ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true
-rqt_plot /loc_err_amcl/pos_err_m/data /loc_err_slam/pos_err_m/data
 ```
 
 ### 8/11/2026

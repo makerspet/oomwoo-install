@@ -17,10 +17,10 @@ RUN git clone -b jazzy --depth 1 https://github.com/micro-ROS/micro_ros_setup.gi
 &&  rm -rf log/ build/ src/
 
 # Disable shared memory
-COPY disable_fastdds_shm.xml disable_fastdds_shm_localhost_only.xml /tmp/
+# COPY disable_fastdds_shm.xml disable_fastdds_shm_localhost_only.xml /tmp/
 
 ENV RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-ENV MICROROS_DISABLE_SHM=1
+# ENV MICROROS_DISABLE_SHM=1
 
 WORKDIR /ros_ws
 
