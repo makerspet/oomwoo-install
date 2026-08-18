@@ -110,6 +110,28 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/18/2026
+
+- `navigation.launch.py` gains a `localization` argument (default **`slam_toolbox`**): navigate a saved map with slam_toolbox scan-matching localization — it loads the map's serialized pose-graph and runs the full Nav2 stack composed in one container, with slam_toolbox owning `map→odom` — or `localization:=amcl` for the particle filter. Falls back to AMCL automatically if the map has no `<map>_serial.posegraph`
+- **relocalization scene**: `localization_relocalize.launch.py` runs the AMCL-vs-slam_toolbox compare stack + `kidnap_injector`, so you can teleport ("kidnap") the robot and watch each localizer recover — AMCL re-localizes globally on `/reinitialize_global_localization`, slam_toolbox does not (the reason to keep AMCL for getting un-lost)
+- `odom_source` values renamed for clarity: `truth` → **`ground_truth`**, `wheel` → **`robot_wheels`**
+- AMCL tuning is now reproducible: `oomwoo_one/config/etc/navigation_tight.yaml` (tuned) and `navigation_loose.yaml` (stock-ish) differ only in the amcl block — pass either as `nav_params:=…` to `localization_compare`
+- swapped PlotJuggler for **Foxglove** in the dev image (−~200 MB): `ros2 run foxglove_bridge foxglove_bridge`, then open Foxglove Studio (browser) → `ws://localhost:8765`
+
+```
+# navigate a saved map (slam_toolbox localization by default)
+ros2 launch oomwoo_gazebo world.launch.py
+ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
+  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml rviz_config:=bump_map.rviz  # localization:=amcl to switch
+
+# relocalization: kidnap the robot, watch AMCL vs slam_toolbox recover
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=ground_truth
+ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true \
+  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}          # random teleport
+ros2 service call /reinitialize_global_localization std_srvs/srv/Empty {}  # re-localize AMCL
+```
+
 ### 8/16/2026
 
 - Gazebo `living_room` world map includes `slam_toolbox` pose graph
