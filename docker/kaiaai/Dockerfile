@@ -31,7 +31,7 @@ ros-jazzy-cartographer-ros ros-jazzy-joint-state-publisher ros-jazzy-xacro \
 ros-jazzy-nav2-map-server ros-jazzy-nav2-bringup python3-websockets \
 ros-jazzy-navigation2 python3-socketio python3-aiohttp python3-httpx \
 python3-click python3-flask ros-jazzy-robot-localization \
-ros-jazzy-plotjuggler-ros
+ros-jazzy-foxglove-bridge
 
 RUN apt update && apt upgrade -y
 
