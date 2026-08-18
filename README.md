@@ -120,12 +120,12 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/15/2026
 
-- localization A/B tooling for the "LiDAR scan vs map walls" misregistration: a new `localization_error` meter (in `oomwoo_sim_support`) scores a localizer's estimate against the sim's ground truth and logs `LOC_ERR pos/yaw` plus a windowed RMS, publishing `~/pos_err_m` / `~/yaw_err_deg` for plotting. It is localizer-agnostic — reads the `map→base` TF, or a pose topic like `/amcl_pose` with `estimate_topic:=…` — so the same meter scores AMCL and slam_toolbox alike. Run it with `odom_source:=truth`
+- localization A/B tooling for the "LiDAR scan vs map walls" misregistration: a new `localization_error` meter (in `oomwoo_sim_support`) scores a localizer's estimate against the sim's ground truth and logs `LOC_ERR pos/yaw` plus a windowed RMS, publishing `~/pos_err_m` / `~/yaw_err_deg` for plotting. It is localizer-agnostic — reads the `map→base` TF, or a pose topic like `/amcl_pose` with `estimate_topic:=…` — so the same meter scores AMCL and slam_toolbox alike. Run it with `odom_source:=ground_truth`
 - `localization_compare.launch.py` runs **AMCL and slam_toolbox localization side by side**: slam_toolbox owns the `map→odom` TF while AMCL runs with `tf_broadcast:false` (only `/amcl_pose`), so there is no TF conflict, and two meters plot both error curves live. AMCL uses your unmodified `navigation.yaml`; slam_toolbox loads a serialized pose-graph (`mapper_params_localization.yaml`, localization mode)
   - to make the graph: map with `slam:=True`, then `ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGraph "{filename: '…/living_room_serial'}"` and `map_saver_cli` from the same session so the pgm and the graph share an origin
 
 ```
-ros2 launch oomwoo_gazebo world.launch.py odom_source:=truth
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=ground_truth  # :=robot_wheels
 ros2 launch oomwoo_sim_support localization_compare.launch.py \
   use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
 ros2 run kaiaai_teleop teleop_keyboard
@@ -220,7 +220,7 @@ ros2 launch oomwoo_clean wall_clean_bump_out.launch.py use_sim_time:=true
 
 ```
 ros2 launch oomwoo_gazebo world.launch.py                     # ground-truth odom (default)
-ros2 launch oomwoo_gazebo world.launch.py odom_source:=wheel  # wheel-encoder odom, slip drifts
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels  # wheel-encoder odom, slip drifts
 ros2 topic echo /imu
 ros2 topic hz /tof_front/points
 ros2 run rqt_image_view rqt_image_view                        # view /camera_left/image
