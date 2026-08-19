@@ -125,7 +125,9 @@ ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
   map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml rviz_config:=bump_map.rviz  # localization:=amcl to switch
 
 # relocalization: kidnap the robot, watch AMCL vs slam_toolbox recover
-ros2 launch oomwoo_gazebo world.launch.py odom_source:=ground_truth
+# robot_wheels (NOT ground_truth): else the sim odom teleports with the robot
+# and slam_toolbox never notices the kidnap
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
 ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true \
   map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
 ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}          # random teleport
