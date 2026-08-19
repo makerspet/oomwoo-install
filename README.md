@@ -110,6 +110,19 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/19/2026
+
+- new package **`oomwoo_localization`** with a `localization_health` monitor: it scores every `/scan` against the static map at the primary `map→base` pose read from **TF** (continuous — unlike slam_toolbox's sparse `/pose`, whose covariance stays confidently small even on a kidnap). **Quality** = the fraction of beams whose endpoint lands within `match_dist_m` of a mapped wall; a kidnap collapses it (nothing matches) and fires **`/localization_lost`**, while an unmapped shoe/box only dents it. Debug/visibility outputs — `~/quality`, a `~/dist_histogram`, an intensity-labelled `~/scan_annotated` cloud (inlier / outlier / clustered), and a throttled console histogram — let you eyeball which rays matched and the outlier clusters in RViz. Detection only for now; scan filtering and dynamic-obstacle rejection come later
+- automatic relocalization now converges reliably: AMCL's `recovery_alpha` (Augmented-MCL random-particle injection) is **off by default** (`recovery:=false`) in `localization_relocalize.launch.py`. Left on, the continuous injection fought the global `/reinitialize_global_localization` and could settle AMCL on the wrong cluster (the far side of the room); pass `recovery:=true` only to exercise passive covariance-based lost-detection
+- dev image adds `python3-scipy` (the `localization_health` map distance transform)
+
+```
+# Localization health: scan-vs-map match quality + robot-lost detection
+ros2 launch oomwoo_localization localization_health.launch.py use_sim_time:=true
+# RViz: add a PointCloud2 on /localization_health/scan_annotated, Color Transformer = Intensity
+# watch /localization_health/quality collapse on a kidnap; box in front only dents it
+```
+
 ### 8/18/2026
 
 - `navigation.launch.py` gains a `localization` argument (default **`slam_toolbox`**): navigate a saved map with slam_toolbox scan-matching localization — it loads the map's serialized pose-graph and runs the full Nav2 stack composed in one container, with slam_toolbox owning `map→odom` — or `localization:=amcl` for the particle filter. Falls back to AMCL automatically if the map has no `<map>_serial.posegraph`
