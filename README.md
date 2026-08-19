@@ -121,18 +121,20 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 - fixed a sim-clock crash in the `localization_error` meter and `bump_map`: the sliding-window prune subtracted below zero while sim time was still under the window
 
 ```
-# navigate a saved map (slam_toolbox localization by default)
-ros2 launch oomwoo_gazebo world.launch.py
+# Navigate a saved map (slam_toolbox localization by default)
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels  # robot_wheels (NOT ground_truth): else the sim odom teleports with the robot
 ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
-  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml rviz_config:=bump_map.rviz  # localization:=amcl to switch
+  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml rviz_config:=bump_map.rviz  # localization:=amcl switch to AMCL localization
 
-# relocalization: kidnap the robot, watch it auto-recover
-# robot_wheels (NOT ground_truth): else the sim odom teleports with the robot
-# and slam_toolbox never notices the kidnap
-ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 run foxglove_bridge foxglove_bridge  # Monitor /loc_err_amcl|slam/pos|yaw_err_m/data localization errors
+ros2 run kaiaai_teleop teleop_keyboard  # Drive robot a little before kidnap to let AMCL point cloud converge
+
+# Relocalization: kidnap the robot, watch it auto-recover
 ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true \
-  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
-ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}   # kidnap -> auto-recovers
+  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml  #  recovery:=true auto-detects robot-lost, messes up localization on kidnap
+ros2 topic pub --once /kidnap_injector/kidnap_to geometry_msgs/msg/PoseStamped \  # kidnap to a given position -> robot auto-recovers
+  "{header: {frame_id: map}, pose: {position: {x: 0.03, y: 1.69}, orientation: {z: -0.939, w: 0.344}}}"
+# ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}   # kidnap to a random position -> robot auto-recovers
 ```
 
 ### 8/16/2026
