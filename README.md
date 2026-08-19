@@ -113,10 +113,12 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 ### 8/18/2026
 
 - `navigation.launch.py` gains a `localization` argument (default **`slam_toolbox`**): navigate a saved map with slam_toolbox scan-matching localization — it loads the map's serialized pose-graph and runs the full Nav2 stack composed in one container, with slam_toolbox owning `map→odom` — or `localization:=amcl` for the particle filter. Falls back to AMCL automatically if the map has no `<map>_serial.posegraph`
-- **relocalization scene**: `localization_relocalize.launch.py` runs the AMCL-vs-slam_toolbox compare stack + `kidnap_injector`, so you can teleport ("kidnap") the robot and watch each localizer recover — AMCL re-localizes globally on `/reinitialize_global_localization`, slam_toolbox does not (the reason to keep AMCL for getting un-lost)
+- **relocalization + automatic recovery**: `localization_relocalize.launch.py` runs the AMCL-vs-slam_toolbox compare stack + `kidnap_injector` + `relocalize_on_lost`. Teleport ("kidnap") the robot — random via `/kidnap_injector/kidnap`, or to a specified pose via `~/kidnap_to` — and it recovers **automatically**: `relocalize_on_lost` detects the robot is lost (AMCL covariance), calls `/reinitialize_global_localization` and spins in place to re-localize AMCL globally, then re-seeds slam_toolbox (`/initialpose`) at the recovered pose so accurate scan-matching resumes. AMCL does the global "find myself" that scan matching can't, then hands the pose back
 - `odom_source` values renamed for clarity: `truth` → **`ground_truth`**, `wheel` → **`robot_wheels`**
 - AMCL tuning is now reproducible: `oomwoo_one/config/etc/navigation_tight.yaml` (tuned) and `navigation_loose.yaml` (stock-ish) differ only in the amcl block — pass either as `nav_params:=…` to `localization_compare`
 - swapped PlotJuggler for **Foxglove** in the dev image (−~200 MB): `ros2 run foxglove_bridge foxglove_bridge`, then open Foxglove Studio (browser) → `ws://localhost:8765`
+- `navigation.launch.py` no longer depends on the sim package `oomwoo_gazebo`: the `map` argument has no default — pass `map:=…` to localize, or `slam:=True` to map
+- fixed a sim-clock crash in the `localization_error` meter and `bump_map`: the sliding-window prune subtracted below zero while sim time was still under the window
 
 ```
 # navigate a saved map (slam_toolbox localization by default)
@@ -124,14 +126,13 @@ ros2 launch oomwoo_gazebo world.launch.py
 ros2 launch oomwoo_bringup navigation.launch.py use_sim_time:=true \
   map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml rviz_config:=bump_map.rviz  # localization:=amcl to switch
 
-# relocalization: kidnap the robot, watch AMCL vs slam_toolbox recover
+# relocalization: kidnap the robot, watch it auto-recover
 # robot_wheels (NOT ground_truth): else the sim odom teleports with the robot
 # and slam_toolbox never notices the kidnap
 ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
 ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true \
   map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
-ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}          # random teleport
-ros2 service call /reinitialize_global_localization std_srvs/srv/Empty {}  # re-localize AMCL
+ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}   # kidnap -> auto-recovers
 ```
 
 ### 8/16/2026
