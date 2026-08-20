@@ -110,6 +110,22 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/20/2026
+
+- **branch-and-bound global relocalizer** (`oomwoo_localization`): a principled, *guaranteed* answer to "where am I?" instead of AMCL's stochastic global filter. It correlates the current `/scan` against the whole map over all headings (Olson-style correlative matching accelerated with a Cartographer-style max-pool pyramid + branch-and-bound), returning the **exact global optimum** of the search grid — no local-minimum lottery. In sim testing AMCL failed a kidnap ~20% of the time, non-repeatably, confusing one corner for another; the BnB search removes that. It also reports an explicit **confidence margin** (how much the best pose beats the next distinct cluster), so ambiguity (e.g. a symmetric room) is *known and flagged*, not silently guessed — something a particle filter can't do
+- new node **`global_relocalizer`**: call the `~/relocalize` service (`oomwoo_localization_msgs/Relocalize`) and get back a pose, score, confidence, and runtime. It is pure mechanism — no motion, no reinit, no "should I trust this" policy (that belongs to an application node); it only reports where the scan says the robot is
+- new **`reloc_eval`** batch harness + launch: kidnaps the robot across a systematic pose grid, scores the relocalizer against ground truth, and prints success rate, position/heading error, runtime, and whether the confidence flag actually predicts correctness. Exits non-zero below a threshold, so the same run doubles as a CI regression gate
+
+```
+# Evaluate the global relocalizer across a systematic kidnap grid
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true \
+  map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+ros2 launch oomwoo_localization reloc_eval.launch.py use_sim_time:=true csv_path:=/root/reloc_eval.csv
+# or one-shot relocalize by hand:
+ros2 service call /global_relocalizer/relocalize oomwoo_localization_msgs/srv/Relocalize {}
+```
+
 ### 8/19/2026
 
 - new package **`oomwoo_localization`** with a `localization_health` monitor: it scores every `/scan` against the static map at the primary `map→base` pose read from **TF** (continuous — unlike slam_toolbox's sparse `/pose`, whose covariance stays confidently small even on a kidnap). **Quality** = the fraction of beams whose endpoint lands within `match_dist_m` of a mapped wall; a kidnap collapses it (nothing matches) and fires **`/localization_lost`**, while an unmapped shoe/box only dents it. Debug/visibility outputs — `~/quality`, a `~/dist_histogram`, an intensity-labelled `~/scan_annotated` cloud (inlier / outlier / clustered), and a throttled console histogram — let you eyeball which rays matched and the outlier clusters in RViz. Detection only for now; scan filtering and dynamic-obstacle rejection come later
