@@ -110,6 +110,20 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/22/2026
+
+- Cartographer-style [Hess, et al 2016](https://www.semanticscholar.org/paper/Real-time-loop-closure-in-2D-LIDAR-SLAM-Hess-Kohler/579735c1e5b2b0ae7fb42fcb9e2433f3118afd20) global relocalizer works,
+```
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true auto_recovery:=false map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+ros2 launch oomwoo_localization localization_recovery.launch.py use_sim_time:=true
+ros2 topic echo /localization_manager/recovery_action
+ros2 run foxglove_bridge foxglove_bridge  # Optional, plot localization error
+ros2 run kaiaai_teleop teleop_keyboard  # Optional, drive around
+ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}  # Kidnap to random location
+ros2 topic pub --once /kidnap_injector/kidnap_to geometry_msgs/msg/PoseStamped "{header: {frame_id: map}, pose: {position: {x: 0.03, y: 1.69}, orientation: {z: -0.939, w: 0.344}}}"  # TV stand
+```
+
 ### 8/20/2026
 
 - **branch-and-bound global relocalizer** (`oomwoo_localization`): a principled, *guaranteed* answer to "where am I?" instead of AMCL's stochastic global filter. It correlates the current `/scan` against the whole map over all headings (Olson-style correlative matching accelerated with a Cartographer-style max-pool pyramid + branch-and-bound), returning the **exact global optimum** of the search grid — no local-minimum lottery. In sim testing AMCL failed a kidnap ~20% of the time, non-repeatably, confusing one corner for another; the BnB search removes that. It also reports an explicit **confidence margin** (how much the best pose beats the next distinct cluster), so ambiguity (e.g. a symmetric room) is *known and flagged*, not silently guessed — something a particle filter can't do
