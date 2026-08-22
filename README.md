@@ -124,6 +124,13 @@ ros2 service call /kidnap_injector/kidnap std_srvs/srv/Trigger {}  # Kidnap to r
 ros2 topic pub --once /kidnap_injector/kidnap_to geometry_msgs/msg/PoseStamped "{header: {frame_id: map}, pose: {position: {x: 0.03, y: 1.69}, orientation: {z: -0.939, w: 0.344}}}"  # TV stand
 ```
 
+- batch/regression test works
+```
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true auto_recovery:=false map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+ros2 launch oomwoo_localization reloc_eval.launch.py use_sim_time:=true csv_path:=/root/maps/reloc_eval.csv publish_initialpose:=true
+```
+
 ### 8/20/2026
 
 - **branch-and-bound global relocalizer** (`oomwoo_localization`): a principled, *guaranteed* answer to "where am I?" instead of AMCL's stochastic global filter. It correlates the current `/scan` against the whole map over all headings (Olson-style correlative matching accelerated with a Cartographer-style max-pool pyramid + branch-and-bound), returning the **exact global optimum** of the search grid — no local-minimum lottery. In sim testing AMCL failed a kidnap ~20% of the time, non-repeatably, confusing one corner for another; the BnB search removes that. It also reports an explicit **confidence margin** (how much the best pose beats the next distinct cluster), so ambiguity (e.g. a symmetric room) is *known and flagged*, not silently guessed — something a particle filter can't do
