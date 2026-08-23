@@ -125,10 +125,11 @@ ros2 topic pub --once /kidnap_injector/kidnap_to geometry_msgs/msg/PoseStamped "
 ```
 
 - batch/regression test works
+  - added hold_s (wait after each relocalization) for visual demo
 ```
 ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
 ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true auto_recovery:=false map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
-ros2 launch oomwoo_localization reloc_eval.launch.py use_sim_time:=true csv_path:=/root/maps/reloc_eval.csv publish_initialpose:=true
+ros2 launch oomwoo_localization reloc_eval.launch.py use_sim_time:=true publish_initialpose:=true csv_path:=/root/maps/reloc_eval.csv hold_s:=3.0
 ```
 
 ### 8/20/2026
