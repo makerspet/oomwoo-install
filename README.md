@@ -110,6 +110,23 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/24/2026
+
+- **stress mode** — the relocalizer's confidence gate is now *proven* to refuse when it genuinely can't tell. An adversarial regression feeds the real branch-and-bound matcher scans corrupted on purpose (a dynamic obstacle, a removed wall, a symmetric room) and asserts the product-grade invariant: it accepts a fix **only when that fix is correct**, and on a symmetric room (match score near 1.0, confidence 0.0) it **refuses** rather than commit to a coin-flip. Runs in ~1 s as a CI test
+- **scan filtering** (`localization_health`) — dynamic obstacles (a stray box, a rolling ball) are stripped from a republished **`/scan_filtered`** so they stop dragging the running scan match down; the segmented clusters go out on `~/dynamic_obstacles`. It filters only while the pose is trusted, and never blanks more than a set fraction of the scan
+- **`~/scan_scored`** — the full scan (nothing dropped) republished with each ray's **static-ness** in its intensity: `exp(-d²/2σ²)`, 1.0 on a mapped wall and → 0 for a dynamic return. A perception/ML node can threshold and cluster it however it likes (experimental API)
+- new **`oomwoo_perception`** package with a placeholder `dynamic_object_detector` — a starting point for contributors: it reads `~/scan_scored`, groups the dynamic rays into blobs, and publishes their centroids on `~/objects` (MarkerArray) for RViz. Classification, tracking, and gestures (e.g. tap-a-foot-to-spot-clean) are what you add on top
+
+```
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true auto_recovery:=false map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+ros2 launch oomwoo_localization localization_recovery.launch.py use_sim_time:=true   # localization_health -> scan_scored + /scan_filtered
+ros2 launch oomwoo_perception dynamic_object_detector.launch.py use_sim_time:=true   # dynamic blobs on ~/objects
+# push the living-room toy ball in front of the vacuum and watch it flagged in RViz:
+#   MarkerArray on /dynamic_object_detector/objects
+#   LaserScan on /localization_health/scan_scored (Color Transformer = Intensity)
+```
+
 ### 8/22/2026
 
 - Cartographer-style [Hess, et al 2016](https://www.semanticscholar.org/paper/Real-time-loop-closure-in-2D-LIDAR-SLAM-Hess-Kohler/579735c1e5b2b0ae7fb42fcb9e2433f3118afd20) global relocalizer works,
