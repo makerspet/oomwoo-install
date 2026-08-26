@@ -110,6 +110,20 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/26/2026
+
+- **Sharper scan tracking through fast turns** — slam_toolbox was re-matching at only ~2 Hz (`minimum_time_interval: 0.5`), so a fast-spinning robot dead-reckoned ~0.5 s of odometry between matches and the scan cloud visibly lagged then snapped in RViz. Tightened to `0.1` (under the 5 Hz scan period) and zeroed `minimum_travel_distance`/`minimum_travel_heading`, so it re-matches on essentially every scan and stays registered through aggressive spins
+- **Tracked the residual "stop flick" to wheel slip** — the one-frame angular jump left after the tuning is *wheel slip*, not a localizer bug: on a hard stop from a fast spin the velocity-controlled wheels halt while the body coasts on inertia, so wheel odometry undershoots the true rotation for a frame (and symmetrically over-reads on spin-up). Each aggressive spin-stop leaves a few degrees of net over-read, which is what accumulates into raw wheel-odom heading drift — the drift slam quietly corrects against the map every scan. It's real physics (a real vacuum slips too), only exercised far harder than a vacuum ever would
+- new **`odom_slip`** diagnostic (`oomwoo_sim_support`) — pairs `/odom` (wheel) and `/odom_truth` by header stamp and publishes the slip for Foxglove: `~/slip_rate_dps` (≈ ω_wheel − ω_truth, ~0 while rolling true, spikes + on wheelspin and − on the inertial coast) and de-trended `~/slip_deg`. The raw yaw difference is dominated by a constant frame offset, so the *rate*/accumulation is the real signal
+- **hushed** the Ceres `num_threads 50 > 24` glog spam from slam_toolbox (a harmless thread-count cap) via `GLOG_minloglevel`
+
+```
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 run oomwoo_sim_support odom_slip --ros-args -p use_sim_time:=true   # slip on ~/slip_rate_dps, ~/slip_deg
+ros2 run foxglove_bridge foxglove_bridge  # plot the slip live
+ros2 run kaiaai_teleop teleop_keyboard    # spin up, then stop abruptly, and watch ~/slip_rate_dps spike
+```
+
 ### 8/24/2026
 
 - manually testing `/dynamic_obstacles` detection
