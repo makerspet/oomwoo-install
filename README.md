@@ -112,6 +112,22 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/24/2026
 
+- manually testing `/dynamic_obstacles` detection
+
+```
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 launch oomwoo_sim_support localization_relocalize.launch.py use_sim_time:=true auto_recovery:=false map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+ros2 run oomwoo_localization localization_health --ros-args -p use_sim_time:=true
+ros2 run kaiaai_teleop teleop_keyboard
+
+ros2 topic echo /scan_filtered
+ros2 topic echo /localization_health/dynamic_obstacles
+ros2 topic echo /localization_health/scan_scored  # walls bright = static, ball dark = dynamic
+ros2 topic echo /localization_health/quality
+```
+
+### 8/24/2026
+
 - **stress mode** — the relocalizer's confidence gate is now *proven* to refuse when it genuinely can't tell. An adversarial regression feeds the real branch-and-bound matcher scans corrupted on purpose (a dynamic obstacle, a removed wall, a symmetric room) and asserts the product-grade invariant: it accepts a fix **only when that fix is correct**, and on a symmetric room (match score near 1.0, confidence 0.0) it **refuses** rather than commit to a coin-flip. Runs in ~1 s as a CI test
 - **scan filtering** (`localization_health`) — dynamic obstacles (a stray box, a rolling ball) are stripped from a republished **`/scan_filtered`** so they stop dragging the running scan match down; the segmented clusters go out on `~/dynamic_obstacles`. It filters only while the pose is trusted, and never blanks more than a set fraction of the scan
 - **`~/scan_scored`** — the full scan (nothing dropped) republished with each ray's **static-ness** in its intensity: `exp(-d²/2σ²)`, 1.0 on a mapped wall and → 0 for a dynamic return. A perception/ML node can threshold and cluster it however it likes (experimental API)
