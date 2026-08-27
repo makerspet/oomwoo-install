@@ -125,6 +125,8 @@ ros2 run foxglove_bridge foxglove_bridge  # plot /loc_err_slam/pos_err_m and /lo
 # widen/sweep to find where it bites:  obstacle_width_deg:=90 obstacle_sweep:=true
 ```
 
+- Gazebo `kitchen-dining.world`, work in progress
+
 ### 8/26/2026
 
 - **Sharper scan tracking through fast turns** — slam_toolbox was re-matching at only ~2 Hz (`minimum_time_interval: 0.5`), so a fast-spinning robot dead-reckoned ~0.5 s of odometry between matches and the scan cloud visibly lagged then snapped in RViz. Tightened to `0.1` (under the 5 Hz scan period) and zeroed `minimum_travel_distance`/`minimum_travel_heading`, so it re-matches on essentially every scan and stays registered through aggressive spins
