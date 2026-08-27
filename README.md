@@ -110,6 +110,21 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/27/2026
+
+- **Large-obstacle localization stress test** — new `scan_obstacle_injector` (`oomwoo_sim_support`) paints a big off-map obstacle into a contiguous arc of `/scan` → `/scan_stress` (deterministic, sweep-capable), so a scan-matcher faces a large *coherent* occlusion rather than scattered noise. `localization_stress.launch.py` localizes slam_toolbox on the stressed scan and scores `loc_err_slam` against ground truth; `filter:=true` instead routes slam through `localization_health`'s `/scan_filtered`, to A/B whether stripping the obstacle recovers the pose. slam_toolbox publishes `/map` here, so no nav2/AMCL/map_server is needed
+
+```
+# terminal 1 — sim (robot_wheels = wheel odom, /odom_truth is ground truth)
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+# terminal 2 — BASELINE: slam matches the raw stressed scan
+ros2 launch oomwoo_sim_support localization_stress.launch.py use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
+# then FILTERED: slam matches /scan_filtered (obstacle stripped) — compare loc_err_slam
+ros2 launch oomwoo_sim_support localization_stress.launch.py use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml filter:=true
+ros2 run foxglove_bridge foxglove_bridge  # plot /loc_err_slam/pos_err_m and /loc_err_slam/yaw_err_deg
+# widen/sweep to find where it bites:  obstacle_width_deg:=90 obstacle_sweep:=true
+```
+
 ### 8/26/2026
 
 - **Sharper scan tracking through fast turns** — slam_toolbox was re-matching at only ~2 Hz (`minimum_time_interval: 0.5`), so a fast-spinning robot dead-reckoned ~0.5 s of odometry between matches and the scan cloud visibly lagged then snapped in RViz. Tightened to `0.1` (under the 5 Hz scan period) and zeroed `minimum_travel_distance`/`minimum_travel_heading`, so it re-matches on essentially every scan and stays registered through aggressive spins
