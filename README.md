@@ -127,7 +127,7 @@ ros2 run kaiaai_teleop teleop_keyboard    # spin up, then stop abruptly, and wat
 - moved `localization_lost` from localization_health to localization_manager
   - localization_manager handles robot-lost policy (when to flag robot as lost - and what to do when that happens)
   - localization_health handles scan quality compute
-- moved `dynamic_obstacles` to from localization_health the perception node
+- moved `dynamic_obstacles` from localization_health to the perception node
   - the perception node is better suited to decide which obstacles are dynamic
 
 ### 8/24/2026
