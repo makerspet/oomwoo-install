@@ -1,0 +1,1 @@
+docker run --name makerspet -it -v c:\maps:/root/maps --rm -p 8888:8888/udp -p 5555:5555/udp -p 5555:5555/tcp -p 8765:8765/tcp -e DISPLAY=host.docker.internal:0.0 -e LIBGL_ALWAYS_INDIRECT=0 -e LIBGL_ALWAYS_SOFTWARE=1 -e GALLIUM_DRIVER=llvmpipe --add-host=host.docker.internal:host-gateway makerspet/oomwoo:jazzy-dev
