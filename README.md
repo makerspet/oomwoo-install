@@ -112,17 +112,18 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/27/2026
 
-- **Large-obstacle localization stress test** — new `scan_obstacle_injector` (`oomwoo_sim_support`) paints a big off-map obstacle into a contiguous arc of `/scan` → `/scan_stress` (deterministic, sweep-capable), so a scan-matcher faces a large *coherent* occlusion rather than scattered noise. `localization_stress.launch.py` localizes slam_toolbox on the stressed scan and scores `loc_err_slam` against ground truth; `filter:=true` instead routes slam through `localization_health`'s `/scan_filtered`, to A/B whether stripping the obstacle recovers the pose. slam_toolbox publishes `/map` here, so no nav2/AMCL/map_server is needed
+- **Large-obstacle localization stress test** — `spawn_obstacle.launch.py` (`oomwoo_sim_support`) drops a real thin wall into the running sim: a 3D box the map does not know about, so it occludes the LiDAR physically (just shows up in `/scan`), is anchored in the room (drive up to it and around it), and is visible in Gazebo and RViz. `localization_stress.launch.py` localizes slam_toolbox against it and scores `loc_err_slam` vs ground truth; `filter:=true` routes slam through `localization_health`'s `/scan_filtered`, to A/B whether stripping the obstacle recovers the pose. slam_toolbox publishes `/map` here, so no nav2/AMCL/map_server is needed
 
 ```
 # terminal 1 — sim (robot_wheels = wheel odom, /odom_truth is ground truth)
 ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
-# terminal 2 — BASELINE: slam matches the raw stressed scan
+# terminal 2 — BASELINE: slam matches the raw /scan (obstacle present)
 ros2 launch oomwoo_sim_support localization_stress.launch.py use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml
-# then FILTERED: slam matches /scan_filtered (obstacle stripped) — compare loc_err_slam
-ros2 launch oomwoo_sim_support localization_stress.launch.py use_sim_time:=true map:=/ros_ws/src/oomwoo_gazebo/maps/living_room.yaml filter:=true
+# terminal 3 — drop a wall on open floor ahead, then drive at it
+ros2 launch oomwoo_sim_support spawn_obstacle.launch.py x:=0.0 y:=-0.5
+ros2 run kaiaai_teleop teleop_keyboard
+# then re-run terminal 2 with filter:=true and compare loc_err_slam:
 ros2 run foxglove_bridge foxglove_bridge  # plot /loc_err_slam/pos_err_m and /loc_err_slam/yaw_err_deg
-# widen/sweep to find where it bites:  obstacle_width_deg:=90 obstacle_sweep:=true
 ```
 
 - Gazebo `kitchen-dining.world`, work in progress
