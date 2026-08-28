@@ -110,6 +110,39 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 8/28/2026
+
+- **Fixed the Gazebo GUI dying on startup under Docker on Windows** — the GUI failed intermittently with an OGRE exception, while the *server* loaded the world fine. `ogre2` needs OpenGL 3.3+; running Docker against an external X server (`DISPLAY=host.docker.internal:0.0`) with no GPU passed through, GLX cannot supply it, so gz-rendering falls back to its EGL PBuffer path — which has no `Full Screen` config option — and the render engine never initializes. It is intermittent because it depends on what the X server negotiates on that run
+
+```
+[GUI] [Err] [Ogre2RenderEngine.cc] OGRE EXCEPTION(2:InvalidParametersException):
+      Option named Full Screen does not exist. in EglPBufferSupport::setConfigOption
+[GUI] [Err] [BaseRenderEngine.cc] Render-engine must be loaded first
+[GUI] [Err] [BaseRenderEngine.cc] Render-engine has not been initialized
+```
+
+- Two ways out, both landed. `LIBGL_ALWAYS_SOFTWARE=1` + `GALLIUM_DRIVER=llvmpipe` make Mesa's software rasteriser supply OpenGL 4.5 *inside* the container, so `ogre2` keeps its normal windowed path and stops depending on the X server's GL at all:
+  - **`docker/utils/start_jazzy_dev_libgl_always_software.cmd`** — `start_jazzy_dev.cmd` plus those two variables. Container-wide, so it covers every GL client including RViz2. Use this one if the GUI keeps dying
+  - **`world.launch.py software_gl:=true`** (`oomwoo_gazebo`) — sets the same two variables for Gazebo only, for when you would rather not slow RViz2 down. Implied by `headless:=true`, which already forced software GL
+- Software rasterising is slower, and it is what you are recording video through — passing a real GPU into the container (`--gpus all` plus `/dev/dri`) is the way to keep hardware rendering. If you do that, drop the software-GL variables or they will silently keep you on llvmpipe
+
+```
+docker\utils\start_jazzy_dev_libgl_always_software.cmd
+ros2 launch oomwoo_gazebo world.launch.py world:=kitchen_dining.world
+```
+
+- **Gazebo `kitchen_dining.world`** — yesterday's work-in-progress world is now a complete kitchen and dining room: 4.90 x 3.80 m (18.6 m²) under a 2.5 m ceiling, composed from individually vendored models rather than one monolithic mesh, so every piece can be reused by the bedroom / office / bathroom worlds later. Nothing is fetched at run time. An L-shaped counter run wraps the north and east walls at true residential dimensions — 0.900 m counter height, 0.635 m depth, and a **0.089 m high x 0.076 m deep toe kick** (3.5" x 3", US standard). That kick is deliberately *lower* than the robot's 0.097 m, so it cannot drive in: this is the case the extendable side brush and mop exist for
+- Fittings: range centred on the north wall (Fuel `Oven`, uniformly scaled 0.8452 so its top lands level with the counter and its depth within 3 mm of it), brushed-stainless range hood, double sink under the east window, integrated under-counter dishwasher, French-door fridge, tall pantry, wall cabinets on both walls, coffee maker, and a dining table the robot drives *under* — 0.622 m between legs with the lowest stretcher at 0.187 m. Wall cabinetry, fridge, pantry, dishwasher, hood and the 2.5 m walls are authored in `oomwoo_gazebo/models/` (Fuel has no residential-height counter, no toe kick anywhere, and no range hood at all); the table, chairs, range and coffee maker are vendored Fuel assets (CC-BY 4.0)
+- Default spawn (`x_pose -2.0`, `y_pose -0.5`) lands on open floor, so no override is needed. There is no saved map for this world yet — run it with SLAM
+
+```
+ros2 launch oomwoo_gazebo world.launch.py world:=kitchen_dining.world
+```
+
+- **SLAM shrugs off a big obstacle** — ran the large-obstacle stress test end to end (drive a real wall up to the vacuum, score `loc_err_slam` vs ground truth, raw scan vs `/scan_filtered`). With the wall throwing ~⅓ of the beams as off-map outliers, slam_toolbox held ~1 cm / ~0.2° *either way*: the correlative matcher locks onto the two-thirds of beams that still fit the map and ignores the coherent off-map chunk. So the scan filter is a clean feed for perception and a bit of map hygiene, **not** a localization crutch at this scale — good to know which job it does. Write-up: [How OOMWOO cleaning algorithms work](https://makerspet.com/blog/how-oomwoo-cleaning-algorithms-work/#does-a-big-obstacle-throw-it-off)
+- **Stress test now scores against a fixed map** — slam_toolbox in localization mode keeps a rolling scan buffer and briefly draws a lingering obstacle into the `/map` it publishes (it heals, and never touches the saved map on disk). That made slam's own `/map` a poor off-map reference, so `localization_stress.launch.py` now brings up a nav2 `map_server` with the fixed saved map for `localization_health` to score against, and remaps slam's own `/map` → `/map_slam`
+- **Fixed a filter-arm startup deadlock** — with `filter:=true`, slam matches `/scan_filtered` while `localization_health` needs slam's `map→odom` TF to produce it, so neither started and the `map` frame never appeared. `localization_health` now fails open — republishing the raw scan on `/scan_filtered` whenever it cannot filter yet (no map, no pose TF, too few beams) — so a consumer like slam is never starved
+
 ### 8/27/2026
 
 - **Large-obstacle localization stress test** — `spawn_obstacle.launch.py` (`oomwoo_sim_support`) drops a real thin wall into the running sim: a 3D box the map does not know about, so it occludes the LiDAR physically (just shows up in `/scan`), is anchored in the room (drive up to it and around it), and is visible in Gazebo and RViz. `localization_stress.launch.py` localizes slam_toolbox against it and scores `loc_err_slam` vs ground truth; `filter:=true` routes slam through `localization_health`'s `/scan_filtered`, to A/B whether stripping the obstacle recovers the pose. slam_toolbox publishes `/map` here, so no nav2/AMCL/map_server is needed
