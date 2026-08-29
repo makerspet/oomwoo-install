@@ -112,6 +112,8 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/28/2026
 
+- **Moved the 2D LiDAR forward on the robot model** (`oomwoo-one`) — from the centred turret to `base_diameter/2 − lidar_min_range` (~0.0745 m) forward of centre, so its minimum range now lands right at the front body edge. That keeps the sensing floor at the bumper and brings a convex corner into view a little sooner — earlier look-ahead for the upcoming *clean-around-any-obstacle* behavior (following an obstacle's contour, concave or convex, off the LiDAR). It stays the single `lidar_center_offset` knob (now formula-driven; set `0.0` for the centred A/B baseline), and `lidar_min_range` is a shared property wired into the sensor `<min>` so the two can't drift. Everything downstream reads the `base_scan` TF, so it's a transparent move — no re-mapping, and the saved maps stay valid (sanity-check localization after pulling the rebuilt image)
+
 - **Fixed the Gazebo GUI dying on startup under Docker on Windows** — the GUI failed intermittently with an OGRE exception, while the *server* loaded the world fine. `ogre2` needs OpenGL 3.3+; running Docker against an external X server (`DISPLAY=host.docker.internal:0.0`) with no GPU passed through, GLX cannot supply it, so gz-rendering falls back to its EGL PBuffer path — which has no `Full Screen` config option — and the render engine never initializes. It is intermittent because it depends on what the X server negotiates on that run
 
 ```
