@@ -113,6 +113,18 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 8/30/2026
 
+- **New `contour_follower` — reactive LiDAR obstacle-following (Phase 1)** — the proactive, any-shape generalization of the bumper-based `wall_clean`. Off the LiDAR it finds the nearest boundary point in a forward-biased follow-side sector and servos two errors (standoff distance + bearing-to-abeam), which traces straight walls and **concave** corners; **convex** outside corners trigger an explicit "lose the wall, arc toward it" recovery until the boundary is re-acquired. Rotate-in-place ALIGN entry, left/right follow, live params, `cleaning_active` for the coverage meter, `~/state` (ALIGN/FOLLOW/ARC/LOST) for observability. This is the core primitive for cleaning *around* obstacles of any continuous shape. Phase 1 = the follow loop + convex arc; **no loop-closure yet** (runs until stopped) and no bump-safety yet (steers off the LiDAR only). Design in `oomwoo_clean/docs/contour_follower_spec.md`
+
+```
+ros2 launch oomwoo_gazebo world.launch.py odom_source:=robot_wheels
+ros2 run kaiaai_teleop teleop_keyboard          # park within ~1 m of a wall (on the right), then quit
+ros2 launch oomwoo_clean contour_follow.launch.py use_sim_time:=true
+ros2 topic echo /contour_follower/state         # ALIGN -> FOLLOW -> ARC (on a convex corner)
+# convex test: drop a box on open floor and follow it
+ros2 launch oomwoo_sim_support spawn_obstacle.launch.py x:=0.0 y:=-0.5 length:=0.5
+```
+
+- **Moved the 2D LiDAR forward on the robot model** now feeds this: the ~0.0745 m forward mount brings a convex corner into view a little sooner, and `contour_follower`'s acceptance test can A/B `lidar_center_offset` 0.0 vs 0.0745 to measure what that buys
 - minimized Gazebo simulation assets
   - replaced racoon with a primitives vase
 
