@@ -110,6 +110,9 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/2/2026
+
+- created vacuum dock, added to `kitchen_world`
 
 ### 8/30/2026
 
