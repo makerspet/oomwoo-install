@@ -127,6 +127,14 @@ ros2 topic echo /contour_follower/state         # ALIGN -> FOLLOW -> ARC (on a c
 ros2 launch oomwoo_sim_support spawn_obstacle.launch.py x:=0.0 y:=-0.5 length:=0.5
 ```
 
+- **`contour_follower` fix: approaching a wall from a distance** — the first sim run showed the robot turning parallel at ~1 m and then *crawling* in at the speed floor instead of closing. The speed ease-off keyed off the raw bearing error, but a large bearing error is exactly what a legitimate far approach looks like, so the follower throttled itself the moment it angled in. Recast as a cascade: the outer loop turns standoff error into a **desired approach angle, capped at `alpha_max_deg`** (40°), and the inner loop steers onto it — with the ease-off now keyed to the *inner* (heading) error, which sits at ~0 during a steady approach. It closes at full speed and straightens on arrival. Gains are now `k_approach` / `k_heading` (replacing `k_dist` / `k_bearing`)
+- **`contour_follower` debug output** — `~/debug_markers` shows what the controller is actually thinking: the boundary point it picked (and the ray to it), the standoff target it is steering toward, the search sector, and the current state as text. Plus `~/standoff_err_m`, `~/bearing_err_deg` and `~/heading_err_deg` to plot. A decluttered `rviz/contour_follow.rviz` (no bump map, ToF or cameras; TF off) and an `rviz:=true` launch arg put the robot, the live scan and those internals on screen in one command
+
+```
+ros2 launch oomwoo_clean contour_follow.launch.py use_sim_time:=true rviz:=true
+```
+
+- Known gaps from that run, not yet fixed: a slight **left/right weave** on straights (the nearest-point *bearing* is ill-conditioned — range varies as `d/cos θ`, so the minimum is very flat and the pick hops between neighbouring beams; a least-squares line fit over the sector is the candidate fix), and the robot **wedging on a bookshelf** whose front edge sits outside the LiDAR's single scan plane — the LiDAR-invisible case that the Phase-4 bumper handoff exists for
 - **Moved the 2D LiDAR forward on the robot model** now feeds this: the ~0.0745 m forward mount brings a convex corner into view a little sooner, and `contour_follower`'s acceptance test can A/B `lidar_center_offset` 0.0 vs 0.0745 to measure what that buys
 - minimized Gazebo simulation assets
   - replaced racoon with a primitives vase
