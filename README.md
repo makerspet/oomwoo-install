@@ -112,6 +112,14 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 9/2/2026
 
+- **Chased down a phantom "wall" in the LiDAR scan** — a wall-like return a couple of metres ahead that followed the robot everywhere, through spins and drives. It was *not* a leftover scan injector (that had been removed cleanly), *not* the front-ToF display, and *not* a stray spawned model — it was **the floor**. In a captured scan `r*cos(bearing)` is constant at 1.07 m across −19°..−63°, the signature of a plane perpendicular to the heading, and it occluded all the real geometry beyond it. `gz` reported the robot pitched **+3.97° nose-down**, and `asin(floor_clearance / (base_diameter/2)) = 4.11°` is exactly the angle at which the body's front edge reaches the floor. Root cause: mounting the LiDAR forward pushed the centre of mass **1.6 mm** past the wheel axle, and the only support behind the axle was the single **rear** caster — so the robot tipped onto its nose and aimed the scan plane at the floor about 1.1 m out, quietly corrupting both wall-following and scan matching
+- **Caster moved to the front, forward LiDAR restored** — these turn out to be one coupled decision rather than two. With the caster at the rear the centre of mass had to stay *behind* the axle (margin: 1.6 mm); with it at the front the requirement inverts and the CoM must stay *ahead* — which is exactly what the forward turret provides. Measured from the generated URDF: CoM **+7.2 mm** ahead of the axle (+2.2 mm from the LiDAR, **+4.9 mm** from the caster's own 50 g moving forward), wheel and caster contacts both at z = −0.0125 so the robot **sits level**, the caster carries 5% of the weight, and it takes **4.31 m/s²** of forward acceleration to unload it against the 1 m/s² limit — a **4.3× margin** in place of a knife edge. Both parameters now carry the arithmetic in their comments, because changing either one alone re-tips the robot
+- **`wall_follow.rviz`** (in `oomwoo_one`) — a decluttered view for the follower runs. Keeps the grid, the robot, the live `/scan` and `contour_follower`'s debug markers; TF, the side range sensors and odometry are present but switched off; drops the front-ToF cloud, the cameras and the bump map; only the *Displays* panel is shown. RViz is deliberately **not** started by `contour_follow.launch.py`, so the UI can come up first — arrange the windows, set the camera, start the screen capture — and the follower can then be restarted without RViz cycling underneath
+
+```
+ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true rviz_config:=wall_follow.rviz
+```
+
 - created vacuum dock, added to `kitchen_world`
 
 ### 8/30/2026
