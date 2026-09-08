@@ -110,6 +110,14 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/7/2026
+
+- **Two builds** - OOMWOO will come in two configurations: a *basic* version (vacuum only, simple to assemble, charging-only dock) and a *full-featured* one (mop, auto-empty, extendable side brush). Which build an RFC serves now matters, so it is called out on the [RFC board](https://github.com/makerspet/oomwoo/tree/main/contributions)
+- **An old smartphone can be the compute** - the I/O board now has a designed path to run the robot off a phone instead of a Raspberry Pi, which drops the single most expensive part for anyone who has a drawer phone. Thanks to krazca for the idea
+- **Electronics** ([oomwoo-pcb](https://github.com/makerspet/oomwoo-pcb)) - smartphone-as-compute support designed; schematic about 50% hand-checked (first review round); carpet sensor driver added
+- **3D design** ([oomwoo-one-cad](https://github.com/makerspet/oomwoo-one-cad)) - vacuum assembly, extendable side brush and air vent are available, none optimized for 3D printing yet; dock design started (simple for now)
+- **Cleaning** - wall following and cleaning with the LiDAR works end to end (v1, needs iteration); see the 9/2 notes below for the line-fit and approach-cascade fixes that got it there
+
 ### 9/2/2026
 
 - **`contour_follower` now fits a line to the wall instead of picking the nearest beam** — a live capture showed the distance loop holding ±0.03 m while the *bearing* error thrashed ±20° frame to frame, with the heading error mirroring it exactly: the controller was steering on noise. Cause: near the perpendicular the range is almost flat — at a 0.20 m standoff, swinging 20° changes it by **1.3 cm**, while the LiDAR's beam-to-beam scatter is about **2 cm** — so the *arg-min* (which beam is nearest) is essentially random across a wide arc, and `min()` over noisy beams is a **biased** distance, part of why it hugged closer than the target. `_boundary()` now seeds on the nearest beam, grows the contiguous surface around it, and total-least-squares fits a line, reporting the fitted perpendicular distance and the bearing to it. Every point contributes, so the noise averages down and the wall angle falls out directly. Checked against synthetic data: exact on clean input, and **0.5° bearing error with 2 cm noise** where arg-min gave ±20°. Falls back to the nearest beam below `min_fit_points`; new knobs `fit_gap_m` (0.10) and `min_fit_points` (6); the fitted segment is drawn in `~/debug_markers` so you can see which surface it locked onto
