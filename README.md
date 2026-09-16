@@ -110,6 +110,25 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/16/2026
+
+- **A torture course for contour following** ([oomwoo_gazebo](https://github.com/makerspet/oomwoo_gazebo) `worlds/contour_torture.world`) - a 5 x 5 m room ringed with the shapes that break a reactive follower, each isolated so a failure *names itself* instead of being "it got stuck somewhere": a square pillar (an unrounded convex corner), a 3 cm fin whose free end is a 180 deg tip to wrap, a round pillar, a coffee table's four 4 cm legs, a 45 deg diagonal, a 0.5 m corridor, a concave alcove, and a 6 cm lip. The lip is **deliberately unwinnable**: the scan plane sits at 8.8 cm, so the LiDAR passes clean over a 6 cm obstacle and only the bumper can catch it - it is in the course to keep the missing bumper handoff visible rather than quietly absent
+
+```
+ros2 launch oomwoo_gazebo world.launch.py world:=contour_torture.world odom_source:=robot_wheels
+ros2 launch oomwoo_clean contour_follow.launch.py use_sim_time:=true
+```
+
+- **...and a 2 second version of it that needs no Gazebo** - `oomwoo_clean/contour_harness.py` drives the *real* boundary estimator and the *real* control law around a ray-traced 2D world with a kinematic robot carrying oomwoo-one's geometry, LiDAR offset included. A 40 s scenario runs in about two seconds, so it gates CI and answers "does the control law survive this shape" before Gazebo is even started. Gazebo stays the authority on what 2D leaves out - the lip below the scan plane, carpet, wheel slip, real timing
+
+```
+python3 -m oomwoo_clean.contour_harness     # the scenario table
+```
+
+- **The harness immediately found two things, both matching the live runs.** First, the ~18 deg bearing droop while circling a table leg is proportional control working exactly as specified, not an estimator bug: the turn command has to come from somewhere and the only source is the bearing error itself, so at equilibrium `e_b = omega / k_heading = 0.45 / 1.5 = 17.2 deg`. Harness: -18.4 deg. Live log: -17 to -21 deg. Second, and more serious: **a sharp convex corner has no clearance margin at all.** Wrapping a wall's tip puts the body centre 0.169 m from it, a box corner 0.174 m, against a **0.1745 m body radius** - the robot grazes what the LiDAR clears, because the follower servos the *LiDAR's* range while the body swings wide of where the LiDAR points. Recorded as an `xfail` with the arithmetic rather than a loosened threshold; the fix is to hold the *body's* clearance, which the fitted conic can be evaluated for directly, with no extra sensing
+- **A fix that looked obviously right, measured wrong** - feeding the fitted curvature forward should cancel that droop. The harness measured the clearance around a table leg falling from 0.178 m to **0.048 m** as the robot spiralled inward. Dropped, in about a minute, for the price of writing the scenario. That is the case for the harness in one line
+- **`contour_follower` rejects blown-up fits** - on a short arc (a 2 cm leg is ~15 beams) the algebraic circle fit occasionally converges to a tiny circle sitting nowhere near the surface: 0.2-1% of frames, worst case 99 deg of bearing error, and a live log caught one commanding a full-rate turn off a single garbage frame (`d=0.06m toward=+260.8`). The fit is now cross-checked against the beam that seeded it (`fit_max_dev_m` 0.05, `fit_max_dev_deg` 35) and falls back to that beam on disagreement: fires on 0% of wall, corner and large-curve frames, and cuts the worst case to 6.7 deg. The fitted radius is also **signed** now, so the marker text reads `R=0.02 (convex)` for a leg versus `(concave)` inside a corner
+
 ### 9/15/2026
 
 - **`contour_follower` now fits a *circle* to a short window of the boundary, so it follows any shape** — the 9/2 line fit cured the weave but broke corners: an inside corner has no gap in the scan, so growing the surface ran straight around it onto the front wall, and one line across both walls reads ~10° tilted and 2–5 cm close. The robot turned away about **0.8 m early** and arced gracefully from wall to wall instead of cleaning into the corner. A line is only ever right for walls, so the fix was to stop assuming one: fit a circle to a **0.15 m window** around the nearest point and report the distance to the fitted curve plus the bearing of its nearest point. The curvature term goes to zero on a flat wall, so this reproduces the line fit there, while the short window keeps the corner out of the estimate until the robot is actually at the standoff. Measured on synthetic scans at the sim LiDAR's specs (360 beams, 1 cm noise), bearing error mean/sd in degrees:
