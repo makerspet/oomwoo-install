@@ -112,6 +112,14 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 9/16/2026
 
+- **`contour_follower` halts on any bump** - a debug stand-in until a real front guard exists. Any contact on either bumper while the follower is active zeroes the command, sends it at once rather than on the next timer tick, and parks the robot in a new `HALTED` state. A warning records which bumper it was and what the follower was tracking at that moment, so each collision is left exactly where it happened, ready to be looked at. `cleaning_active` drops while halted. Resume with the command below; `halt_on_bump:=false` restores the old behaviour for A/B runs
+
+```
+ros2 topic pub --once /contour_follower/enable std_msgs/msg/Bool '{data: true}'
+```
+
+- **Blog** - the algorithms post gained *Seen, but never picked*: the course's slot, the front-guard gap it exposed, and the bump-halt stand-in. It also retracts the earlier line that the follower "clears every shape it is given", which the Gazebo run disproved
+
 - **Torture course fixed: it had two slots the robot could never fit through** - the first Gazebo run followed the wall straight into a panel I had placed **0.275 m** off the south wall, against a **0.349 m** robot: a slot, not a corridor. An audit of every obstacle footprint against every other found a second impassable slot (0.302 m) and three squeezes under 0.45 m. The corridor is now a single fin 0.5 m off the wall, the diagonal is shorter, and the audit finds no gap under 0.45 m, so a crash on the course now means the follower failed rather than the course being unwinnable (the 6 cm lip stays the one deliberate exception)
 - **...but the crash itself was a real finding: the follower has no front guard.** The panel's end was in view for the whole approach, at +5 deg to +16 deg, but the wall beside the robot was always *nearer*, and the follower only ever steers on the single nearest surface. By the time the panel end was as close as the wall, it had swung past the search sector's +20 deg edge and dropped out of view. It was never picked. The earlier collision with a second table leg was the same thing. Reproduced in the rehearsal as `post_in_path` (a post 10 cm left of the path: the body centre gets to 0.079 m from it) and recorded as a strict `xfail`, so it flips loudly when a front guard lands
 - **RViz: the orange lines are gone** - they were the search sector's two edges (-170 deg and +20 deg), not leftover text. The markers now show only what the controller steers on
