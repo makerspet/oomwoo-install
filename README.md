@@ -112,6 +112,9 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 9/16/2026
 
+- **RViz de-cluttered** - `contour_follower` no longer floats a text label over the robot; the markers are geometry only (fitted curve, window ends, picked point, standoff target, search sector). The numbers live in the once-a-second log line, which now also ends with the shape the estimate came off, e.g. `[fit 73 pts, straight]` or `[fit 15 pts, R=0.02 convex]`
+- **Blog** - [How OOMWOO cleaning algorithms work](https://makerspet.com/blog/how-oomwoo-cleaning-algorithms-work/) now covers the circle fit, the torture course and 2D rehearsal, and why the follower measures clearance at the body rather than the LiDAR
+
 - **Shipped: the follower now holds the BODY's clearance, not the LiDAR's range, and both collisions are gone.** The follower servos the range the *LiDAR* reports, but the LiDAR sits 0.0745 m ahead of the wheel axle, so on a tight turn the shell swings wide of wherever the LiDAR is pointing. Measuring the same 0.20 m to the *body centre* instead - which needs no new sensing, because the fitted circle can simply be evaluated at the body centre - turns both failures into passes, at no cost in distance covered:
 
 | scenario | LiDAR range (today) | body clearance |
