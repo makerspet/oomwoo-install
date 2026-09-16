@@ -110,6 +110,29 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/15/2026
+
+- **`contour_follower` now fits a *circle* to a short window of the boundary, so it follows any shape** — the 9/2 line fit cured the weave but broke corners: an inside corner has no gap in the scan, so growing the surface ran straight around it onto the front wall, and one line across both walls reads ~10° tilted and 2–5 cm close. The robot turned away about **0.8 m early** and arced gracefully from wall to wall instead of cleaning into the corner. A line is only ever right for walls, so the fix was to stop assuming one: fit a circle to a **0.15 m window** around the nearest point and report the distance to the fitted curve plus the bearing of its nearest point. The curvature term goes to zero on a flat wall, so this reproduces the line fit there, while the short window keeps the corner out of the estimate until the robot is actually at the standoff. Measured on synthetic scans at the sim LiDAR's specs (360 beams, 1 cm noise), bearing error mean/sd in degrees:
+
+| scene | line fit (whole surface) | **circle fit, 0.15 m window** | nearest beam + median-5 |
+|---|---|---|---|
+| wall | +0.0 / 0.1 | −0.0 / 0.7 | +0.4 / 7.4 |
+| inside corner, 0.8 m ahead | **+9.8** / 0.1 | +0.0 / 1.0 | −0.5 / 7.8 |
+| stool seat, R 0.15 | −0.0 / 1.2 | −0.0 / 0.4 | −0.1 / 4.5 |
+| stool leg, R 0.03 | +2.3 / **14.7** | −0.0 / 0.4 | −0.1 / 1.9 |
+| leg beside a wall | −0.0 / 0.1 | +0.2 / 1.3 | +0.3 / 3.4 |
+
+- **Median-filtering the scan was tried first and does not work** — it is the obvious cheap fix, so it is worth recording that it fails: median-3, median-5, median-9 and repeated passes all leave **6–8°** of bearing noise, against 7–8° unfiltered. The problem is not outliers, it is that the range minimum along a wall is *flat* — at a 0.20 m standoff a ±20° swing moves the range by 1.3 cm against ~2 cm of beam scatter — so smoothing the ranges never sharpens the minimum and "which beam is nearest" stays close to random. An ill-conditioned arg-min has to be replaced, not denoised
+- **Convex (outside) corners now get rounded by the normal follow law** — sweeping the estimator past a box corner, the fit tracks the corner vertex to within 1–2 cm and a few degrees rather than extrapolating a wall that has ended, and the reported distance grows *smoothly* (largest frame-to-frame step **0.026 m** against the 0.30 m `convex_jump_m` threshold). So the follower stays in FOLLOW and arcs around the corner on its own; the explicit ARC recovery is now a backstop for when the boundary genuinely disappears, not the normal path around an obstacle. One transient remains: a single frame at the corner itself reads ~20° off while the window straddles both faces
+- **Debug markers were never reaching RViz** — `wall_follow.rviz` asks for TRANSIENT_LOCAL durability on `~/debug_markers` while the publisher was VOLATILE. That pair is silently incompatible: RViz connects, logs one QoS warning at startup, then draws nothing. The publisher is now TRANSIENT_LOCAL, which satisfies transient-local and volatile subscribers alike, so RViz and Foxglove both work with no config change
+- **...and now they show what the fit is thinking** — the fitted curve draws as a polyline projected onto the fitted circle (visibly bending: 3 mm of sag across the window on a wall, 64 mm on a 15 cm stool seat), raised clear of the scan; its endpoints draw as spheres so the extent of the window being used is obvious; and the state text gained a line reading `fit 73 pts, straight` or `fit 50 pts, R=0.14`. Above a 2 m fitted radius it prints "straight" rather than a number, because scan noise alone bends a wall fit to R ≈ 4 m
+- New knob `fit_window_m` (0.15) — shorten it to track small objects more tightly, lengthen it for smoother walls. `oomwoo_clean` now depends on `python3-numpy`
+
+```
+ros2 launch oomwoo_clean contour_follow.launch.py use_sim_time:=true
+ros2 launch oomwoo_sim_support spawn_obstacle.launch.py x:=0.0 y:=-0.5 length:=0.5  # box: state should stay FOLLOW around all four corners
+```
+
 ### 9/7/2026
 
 - **Two builds** - OOMWOO will come in two configurations: a *basic* version (vacuum only, simple to assemble, charging-only dock) and a *full-featured* one (mop, auto-empty, extendable side brush). Which build an RFC serves now matters, so it is called out on the [RFC board](https://github.com/makerspet/oomwoo/tree/main/contributions)
