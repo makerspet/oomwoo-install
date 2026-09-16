@@ -112,6 +112,20 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 9/16/2026
 
+- **Measured: hold the BODY's clearance, not the LiDAR's range, and both collisions go away.** The follower servos the range the *LiDAR* reports, but the LiDAR sits 0.0745 m ahead of the wheel axle, so on a tight turn the shell swings wide of wherever the LiDAR is pointing. Measuring the same 0.20 m to the *body centre* instead - which needs no new sensing, because the fitted circle can simply be evaluated at the body centre - turns both failures into passes, at no cost in distance covered:
+
+| scenario | LiDAR range (today) | body clearance |
+|---|---|---|
+| wall tip (180 deg wrap) | 0.169 m **HIT** | 0.186 m ok |
+| box corner | 0.174 m **HIT** | 0.180 m ok |
+| table leg, 2 cm | 0.182 m | 0.196 m |
+| table leg, 5 cm | 0.188 m | 0.200 m |
+| room walls | 0.186 m | 0.193 m |
+| leg beside a wall | 0.175 m | 0.182 m |
+
+- **Slowing down in sharp turns was tried as the backup plan, and it makes things worse** - the intuition is sound and real vacuums do it (a Dreame L60 audibly slows for corners), but in *this* control law speed and turn radius are coupled: the turn rate comes from the bearing error, so cutting v while omega holds shrinks the path radius `r = v / omega` and the robot spirals *inward*. Measured around a 2 cm leg: clearance falls from 0.182 m to **0.083 m** as the speed cap tightens, with the bearing droop growing from 18 to 27 deg. It would work only alongside a matching turn-rate limit, or after the body-clearance fix above removes the reason for it. Recording the negative result because it is a genuinely reasonable idea that the rig disproved in a minute
+- **CI: retry `rosdep update` instead of reddening on a dropped connection** - a build failed with `urlopen error [Errno 104] Connection reset by peer` fetching rosdistro YAML from raw.githubusercontent.com. The step runs under `sh -e`, so one reset failed the whole build with nothing wrong in the tree; the same commit passed on the next push. Now retried 3 times, 15 s apart
+
 - **A torture course for contour following** ([oomwoo_gazebo](https://github.com/makerspet/oomwoo_gazebo) `worlds/contour_torture.world`) - a 5 x 5 m room ringed with the shapes that break a reactive follower, each isolated so a failure *names itself* instead of being "it got stuck somewhere": a square pillar (an unrounded convex corner), a 3 cm fin whose free end is a 180 deg tip to wrap, a round pillar, a coffee table's four 4 cm legs, a 45 deg diagonal, a 0.5 m corridor, a concave alcove, and a 6 cm lip. The lip is **deliberately unwinnable**: the scan plane sits at 8.8 cm, so the LiDAR passes clean over a 6 cm obstacle and only the bumper can catch it - it is in the course to keep the missing bumper handoff visible rather than quietly absent
 
 ```
