@@ -117,16 +117,16 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 - **Shipped: the follower now holds the BODY's clearance, not the LiDAR's range, and both collisions are gone.** The follower servos the range the *LiDAR* reports, but the LiDAR sits 0.0745 m ahead of the wheel axle, so on a tight turn the shell swings wide of wherever the LiDAR is pointing. Measuring the same 0.20 m to the *body centre* instead - which needs no new sensing, because the fitted circle can simply be evaluated at the body centre - turns both failures into passes, at no cost in distance covered:
 
-| scenario | LiDAR range (today) | body clearance |
+| scenario | LiDAR range (before) | body clearance (shipped) |
 |---|---|---|
-| wall tip (180 deg wrap) | 0.169 m **HIT** | 0.186 m ok |
+| wall tip (180 deg wrap) | 0.169 m **HIT** | 0.181 m ok |
 | box corner | 0.174 m **HIT** | 0.180 m ok |
 | table leg, 2 cm | 0.182 m | 0.196 m |
 | table leg, 5 cm | 0.188 m | 0.200 m |
 | room walls | 0.186 m | 0.193 m |
 | leg beside a wall | 0.175 m | 0.185 m |
 
-  The fitted conic is just a curve in the scan frame, so the body centre is another point to evaluate it at - no new sensing and no second estimator. Running parallel to a wall the two measures are *identical* (the body centre sits directly behind the LiDAR), so wall following is unchanged by construction, and a test pins that invariant; they separate only in turns, which is where the grazing was. The two harness `xfail`s are now ordinary passing gates, the diagnostic log and marker text print both numbers (`d=0.20m (lidar 0.23)`), and `use_body_clearance:=false` restores the old behaviour for comparison
+  The fitted conic is just a curve in the scan frame, so the body centre is another point to evaluate it at - no new sensing and no second estimator. Running parallel to a wall the two measures are *identical* (the body centre sits directly behind the LiDAR), so wall following is unchanged by construction, and a test pins that invariant; they separate only in turns, which is where the grazing was. The two harness `xfail`s are now ordinary passing gates, the diagnostic log prints both numbers (`d=0.20m (lidar 0.23)`), and `use_body_clearance:=false` restores the old behaviour for comparison
 
 - **Slowing down in sharp turns was tried as the backup plan, and it makes things worse** - the intuition is sound and real vacuums do it (a Dreame L60 audibly slows for corners), but in *this* control law speed and turn radius are coupled: the turn rate comes from the bearing error, so cutting v while omega holds shrinks the path radius `r = v / omega` and the robot spirals *inward*. Measured around a 2 cm leg: clearance falls from 0.182 m to **0.083 m** as the speed cap tightens, with the bearing droop growing from 18 to 27 deg. It would work only alongside a matching turn-rate limit, or after the body-clearance fix above removes the reason for it. Recording the negative result because it is a genuinely reasonable idea that the rig disproved in a minute
 - **CI: retry `rosdep update` instead of reddening on a dropped connection** - a build failed with `urlopen error [Errno 104] Connection reset by peer` fetching rosdistro YAML from raw.githubusercontent.com. The step runs under `sh -e`, so one reset failed the whole build with nothing wrong in the tree; the same commit passed on the next push. Now retried 3 times, 15 s apart
