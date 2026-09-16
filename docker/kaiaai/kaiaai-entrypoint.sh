@@ -9,13 +9,8 @@
 # shellcheck source=/dev/null
 . "/ros_ws/install/local_setup.sh"
 
-if [ "$MICROROS_DISABLE_SHM" = "1" ] ; then
-    if [ "$ROS_LOCALHOST_ONLY" = "1" ] ; then
-        export FASTRTPS_DEFAULT_PROFILES_FILE=/tmp/disable_fastdds_shm_localhost_only.xml
-    else
-        export FASTRTPS_DEFAULT_PROFILES_FILE=/tmp/disable_fastdds_shm.xml
-    fi
-fi
+# shellcheck source=/dev/null
+. /etc/fastdds_profile.sh
 
 set -e
 # printf, not echo: only dash's echo expands \033: bash's would print the

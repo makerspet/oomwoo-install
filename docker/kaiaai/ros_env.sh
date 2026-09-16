@@ -30,5 +30,10 @@ if [ -z "$OOMWOO_ROS_ENV" ]; then
   } > /dev/null
 
   unset _ros_env_ext
+
+  # `docker exec` shells skip the entrypoint, so apply the SHM opt-out here too
+  # shellcheck source=/dev/null
+  . /etc/fastdds_profile.sh
+
   export OOMWOO_ROS_ENV=1
 fi
