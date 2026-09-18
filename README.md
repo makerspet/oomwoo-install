@@ -282,9 +282,9 @@ ros2 launch oomwoo_sim_support spawn_obstacle.launch.py x:=0.0 y:=-0.5 length:=0
 ```
 
 - Two ways out, both landed. `LIBGL_ALWAYS_SOFTWARE=1` + `GALLIUM_DRIVER=llvmpipe` make Mesa's software rasteriser supply OpenGL 4.5 *inside* the container, so `ogre2` keeps its normal windowed path and stops depending on the X server's GL at all:
-  - **`docker/utils/start_jazzy_dev_libgl_always_software.cmd`** — `start_jazzy_dev.cmd` plus those two variables. Container-wide, so it covers every GL client including RViz2. Use this one if the GUI keeps dying
+  - **`docker/utils/start_jazzy_dev_libgl_always_software.cmd`** — the plain launcher plus those two variables. Container-wide, so it covers every GL client including RViz2. Use this one if the GUI keeps dying
   - **`world.launch.py software_gl:=true`** (`oomwoo_gazebo`) — sets the same two variables for Gazebo only, for when you would rather not slow RViz2 down. Implied by `headless:=true`, which already forced software GL
-- **Hardware GL on Windows, via `docker/utils/start_jazzy_dev_gpu.cmd`** — software rasterising is the fallback, not the ceiling. On Windows 11 + WSL2 the container can reach the real GPU, but *not* the way a Linux host does: there is no `/dev/dri` in WSL, and `--gpus all` covers CUDA compute rather than OpenGL. The route is Mesa's **d3d12** Gallium driver, which maps OpenGL onto DirectX 12 through WSL's `/dev/dxg`. Three pieces must line up — the `/dev/dxg` device, WSL's `libd3d12.so`/`libdxcore.so` bind-mounted from `/usr/lib/wsl`, and Mesa's `d3d12_dri.so`, already present in the `jazzy-dev` image. Measured on an RTX 5070 Laptop GPU, over the very same X server that fails without it:
+- **Hardware GL on Windows, via `docker/utils/gpu_start_jazzy_dev.cmd`** — software rasterising is the fallback, not the ceiling. On Windows 11 + WSL2 the container can reach the real GPU, but *not* the way a Linux host does: there is no `/dev/dri` in WSL, and `--gpus all` covers CUDA compute rather than OpenGL. The route is Mesa's **d3d12** Gallium driver, which maps OpenGL onto DirectX 12 through WSL's `/dev/dxg`. Three pieces must line up — the `/dev/dxg` device, WSL's `libd3d12.so`/`libdxcore.so` bind-mounted from `/usr/lib/wsl`, and Mesa's `d3d12_dri.so`, already present in the `jazzy-dev` image. Measured on an RTX 5070 Laptop GPU, over the very same X server that fails without it:
 
 | setting | renderer | GL |
 |---|---|---|
@@ -295,7 +295,7 @@ ros2 launch oomwoo_sim_support spawn_obstacle.launch.py x:=0.0 y:=-0.5 length:=0
 - `GALLIUM_DRIVER=d3d12` is required rather than optional: with no `/dev/dri` to probe, Mesa's auto-detection falls back to llvmpipe. `MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA` pins the discrete GPU — without it a hybrid-graphics laptop can come up on the Intel iGPU. Do **not** combine this with `LIBGL_ALWAYS_SOFTWARE=1`; that flag wins and silently puts you back on llvmpipe
 
 ```
-docker\utils\start_jazzy_dev_gpu.cmd                    :: hardware GL (fastest)
+docker\utils\gpu_start_jazzy_dev.cmd                    :: hardware GL (fastest)
 docker\utils\start_jazzy_dev_libgl_always_software.cmd  :: software GL (fallback)
 ```
 
