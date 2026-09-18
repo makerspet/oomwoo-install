@@ -110,6 +110,19 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/18/2026
+
+- **The fit was rounding off sharp corners, and the log said so.** A Gazebo run halted with `surface at 0.21 m, -107 deg [fit 38 pts, R=0.08 convex]`, and every dip in that run carries the same `R=0.08 convex` signature. A fitted circle *rounds* a corner, so while wrapping one the arc passes inside the real corner and the reported distance is too large: traced against truth in the harness, **+23 mm** around a box corner and **+54 mm** in a room's inside corners - most of what the standoff buys, which is why the robot kept bumping corners while its own log showed a healthy 0.21 m. The scan points do not round anything off, since the corner tip is one of them, so the follower now reports the smaller of the fitted distance and the distance to the **3rd-nearest point** in the fit window. Rank 3 rather than 1 because the single nearest beam carries the full noise: ~7 mm of average extra clearance instead of ~14 mm. Worst margin to the bumper across seven scenarios improves from +28.9 mm to **+35.5 mm**, and nothing touches even at the old 0.20 m standoff
+- **The torture course is folded and compact now** - a 6 x 6 m room (half the floor area) with a **peninsula** jutting in from one wall. The boundary stays one continuous wall, so the follower traces the perimeter *and* both faces of the peninsula without having to choose: 33 m of wall inside 36 m², a lap of about 220 s, and it all fits on screen. Running anticlockwise from the start: four square teeth with gaps of 2.0, 1.1 and 0.9 robot diameters; a small then a wide block; a leg, two legs in a row and two thick legs along the peninsula; a 180° wrap around its tip; blocks standing 0.25 m and 0.50 m off it; a convex half-cylinder; a wedge, a concave bay of R 0.35, a convex R 0.15; a concave bay of R 0.17 that is too tight to enter, and the V trap; then plain wall home
+
+```
+ros2 launch oomwoo_gazebo world.launch.py world:=contour_torture.world x_pose:=-2.6 y_pose:=-2.77 odom_source:=robot_wheels
+ros2 launch oomwoo_clean contour_follow.launch.py use_sim_time:=true
+```
+
+- **The preview caught two layout bugs before they cost a run** - the V trap's ledge had swallowed the corner *including the robot's start pose*, and left a slot against the neighbouring bay. `script/make_contour_torture.py` holds every coordinate once, writes the SDF, audits every gap against the robot's size and draws `worlds/contour_torture.png`; the 2D rehearsal then drives the whole lap and completes one plus most of a second before grazing
+- **Tip: a new world does not need an image rebuild.** The dev container builds with `colcon --symlink-install`, so `docker cp` into `/ros_ws/src/...` is enough for worlds, launch files and Python nodes - the build and install trees are symlinks back to the source. Only C++ or new entry points need `colcon build`
+
 ### 9/17/2026
 
 - **`contour_follower` standoff 0.20 -> 0.23 m: the bumper, not the body, touches first.** A Gazebo run halted on a right-bumper contact just after an inside corner, with the body centre 0.18 m from the wall. That is *outside* the 0.1745 m body radius, but the bumper is a ring of 10 mm facets centred on the body radius, so its face stands 5 mm proud and each facet's corners reach **0.1814 m**. The test harness now scores contact against that radius, and it overturned an earlier result: the body-clearance fix had raised the wall-end and box-corner clearances to 0.181 and 0.180 m, which were counted as passes but were contacts. Worst margin to the bumper across seven scenarios:
