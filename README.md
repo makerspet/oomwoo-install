@@ -112,6 +112,13 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 9/23/2026
 
+- **`bumper_probe`: a live check that each bumper half fires** (`oomwoo_sim_support`) - the sim bumpers have failed without any error before: Gazebo renames every collision when it merges the robot's links, so the bumper sensors must list the renamed names. `test_bumper_wiring.py` checks the names; this checks the geometry, by driving the robot into walls at three angles and confirming which half reports each hit - head-on, 30 deg on the right, 30 deg on the left. Turns and back-offs are measured on `/odom`, so a slow headless sim does not skew them, and it exits 0 or 1, so it can gate any change to the robot's collision shapes. Verified both ways: it passes on the new flush bumper, and it fails on a deliberately broken model with the body 5 mm outside the bumper - not by going silent, but by the **wrong** half firing, because Gazebo lets surfaces sink up to 1 cm into each other and the robot twists on the body contact. Checking *which* side fires is what catches it
+
+```
+ros2 launch oomwoo_gazebo world.launch.py world:=contour_torture.world x_pose:=2.3 y_pose:=-2.6 headless:=true
+ros2 run oomwoo_sim_support bumper_probe
+```
+
 - **The robot is round now: the bumper sits flush with the body** ([oomwoo-one](https://github.com/makerspet/oomwoo-one)) - the bumper facets used to be centred *on* the body radius, so they stood 5 mm proud and their corners reached 0.1814 m against a 0.1745 m body. Consumer robot vacuums are plain circles, and for a reason: a round outline can always turn in place, which is how a robot gets back out of the tightest dead end. The facets now sit just inside the body radius with their outer corners landing exactly on it, and there are twice as many (24), which keeps the faceting error to 0.5 mm. Measured from Gazebo's own conversion of the model: outermost point **0.1745 m**, the body radius exactly
 - **...with the one trap flush bumpers have, handled** - if the body's collision cylinder had the same radius as the bumper, the two would tie, and wherever the body touched first the bumper sensor would never fire. So the body's *collision* cylinder is 2 mm inside the bumper's faces, the way a real robot's chassis sits behind its bumper shell, and the bumper leads it by at least 2.0 mm at every angle across the front. The body's visual stays full size, nothing with mass moved, and the bumper-wiring test passes against the new model
 - The contour follower's test harness scores contact against the new 0.1745 m, so every scenario now clears by about 7 mm more than before; the 0.23 m standoff is unchanged for now
