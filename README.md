@@ -110,6 +110,12 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/23/2026
+
+- **The robot is round now: the bumper sits flush with the body** ([oomwoo-one](https://github.com/makerspet/oomwoo-one)) - the bumper facets used to be centred *on* the body radius, so they stood 5 mm proud and their corners reached 0.1814 m against a 0.1745 m body. Consumer robot vacuums are plain circles, and for a reason: a round outline can always turn in place, which is how a robot gets back out of the tightest dead end. The facets now sit just inside the body radius with their outer corners landing exactly on it, and there are twice as many (24), which keeps the faceting error to 0.5 mm. Measured from Gazebo's own conversion of the model: outermost point **0.1745 m**, the body radius exactly
+- **...with the one trap flush bumpers have, handled** - if the body's collision cylinder had the same radius as the bumper, the two would tie, and wherever the body touched first the bumper sensor would never fire. So the body's *collision* cylinder is 2 mm inside the bumper's faces, the way a real robot's chassis sits behind its bumper shell, and the bumper leads it by at least 2.0 mm at every angle across the front. The body's visual stays full size, nothing with mass moved, and the bumper-wiring test passes against the new model
+- The contour follower's test harness scores contact against the new 0.1745 m, so every scenario now clears by about 7 mm more than before; the 0.23 m standoff is unchanged for now
+
 ### 9/18/2026
 
 - **Video: a full lap of the torture course** - [OOMWOO wall following torture course](https://youtu.be/Y2uC995az5o). LiDAR only, no map and no SLAM, in the folded 6 x 6 m room: into the wide gap between the first two teeth and straight past the narrow ones, a 180 deg wrap around the peninsula's tip, round the arcs and blocks, with the odd clip along the way. A lap is about four minutes
