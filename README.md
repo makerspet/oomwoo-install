@@ -110,6 +110,11 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/25/2026
+
+- **The corner guard now sizes its margin from the LiDAR's own noise, not a fixed 1 cm** - yesterday's fix lifted the guard by a fixed 1 cm, which is really "1 cm, given this LiDAR's noise": another number to retune for a different sensor, a dark or shiny surface, or bright light. The follower now estimates the range noise from every scan - along a surface, the second difference of neighbouring ranges is pure noise, and taking its median ignores the few points at a corner - and lifts the guard by that. Wall offset the guard adds at 0.5 / 1 / 2 cm of range noise: fixed 1 cm margin 0.0 / 1.4 / **13.5** mm; median-5 filter 1.5 / 3.9 / 7.6 mm; median-9 0.8 / 1.9 / 6.3 mm; **estimated 0.3 / 1.0 / 4.7 mm**. A median filter was the natural first idea and does help, but only removes part of the bias, and its window is counted in beams, so it covers a different arc on a LiDAR with a different resolution - a sensor-dependent setting of its own
+- **The log line now reports the measured LiDAR noise**, e.g. `[fit 64 pts, straight, noise 9.8 mm]` - a free check of the real LiDAR's range noise on real surfaces, when it arrives
+
 ### 9/24/2026
 
 - **Found the other half of the curve error: the corner guard was costing 1 cm on every wall** - raising the follower's gain barely moved the curve error, so part of it wasn't the control law at all. It was the guard that stops the circle fit rounding off sharp corners ("never report further than the 3rd-nearest scan point"): the 3rd-nearest of ~60 noisy points sits about 1 cm closer than the surface really is, so on a smooth surface the guard won every frame and held the robot **9.9 mm out along every straight wall**. It now carries a 1 cm allowance for its own noise, so it only takes over where the fit really is wrong - at sharp corners, where it's 23-54 mm off. Offset from the standoff, before -> after: straight wall +9.9 mm -> **+1.1 mm**; stool seat +1.7 -> +1.0 cm; bay R 0.50 +1.2 -> +0.4 cm; tight bay R 0.35 +2.3 -> +1.7 cm; 2 cm leg unchanged at +0.6 cm. Closest approaches everywhere stay at least 31 mm clear of the bumper
