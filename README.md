@@ -110,6 +110,12 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/24/2026
+
+- **Why the follower settles off the standoff on curves, and why that turned out fine** - on a curve a proportional controller has to hold an error to keep turning. On top of that, the bearing was measured from the LiDAR, 7.45 cm ahead of the body centre, and from there a curve's nearest point is off abeam even when the robot is perfectly tangent: by atan(offset / path radius). The logged bearings match that geometry: 16.6 deg predicted vs 14-20 logged around a leg, 31.8 vs 25-32 in the R 0.35 bay
+- **The textbook fix was built, measured, and left off** - measuring the bearing at the body centre (`use_body_bearing`) plus a feed-forward of the turn the fitted curve needs (`use_curvature_ff`). True clearance on the curve, target 0.23 m, today vs both on: 2 cm leg 0.236 vs 0.248; 5 cm leg 0.238 vs 0.242; 15 cm seat 0.247 vs 0.243; bays R 1.00/0.75/0.50 0.233/0.239/0.242 vs 0.236/0.234/0.230; but the tight **R 0.35 bay 0.253 vs 0.211 - and it touches the wall**. The two effects in today's law nearly cancel, so it already holds curves within about 2 cm and always errs *outward*, the safe side. Both switches stay off, documented with the numbers, for A/B runs in Gazebo
+- **The test harness now drives the node's own control law** instead of a copy of it, so a steering change can no longer slip past it. New `concave_bay` scenario and a test pinning legs and bays within -1..+3 cm of the standoff with no contact
+
 ### 9/23/2026
 
 - **Every bump is logged now, halting or not** - with `halt_on_bump:=false` the follower used to say nothing when it hit something. Each bump now gets one line saying which half, the state, and what the follower was tracking at that moment, e.g. `BUMP (right bumper) during FOLLOW. Follower was tracking: surface at 0.21 m, -86 deg [fit 38 pts, R=0.08 convex]. Carrying on (halt_on_bump is off).` Gazebo publishes a contact message on every physics step the bumper is pressed, so only the *start* of a bump is logged: a side counts as bumped again once it has been clear for half a second
