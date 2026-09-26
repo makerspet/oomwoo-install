@@ -110,6 +110,16 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/26/2026
+
+- **`halt_on_bump:=false` was being silently ignored - fixed** - the contour follower's launch file only passed three settings through to the node, and `ros2 launch` accepts any other `name:=value` without complaint and quietly drops it. So every run meant to have halting off had it on, and the latest torture-course run stopped at its first bump. `halt_on_bump`, `use_body_bearing` and `use_curvature_ff` are now passed through, checked on a running node. Worth knowing in general: a misspelled or undeclared launch argument produces no error; `ros2 param get /contour_follower <name>` shows what the node actually got
+
+```
+ros2 launch oomwoo_clean contour_follow.launch.py use_sim_time:=true halt_on_bump:=false
+```
+
+- **The LiDAR noise estimate is now averaged over about 2 seconds** - a single scan's estimate scattered from 6 to 19 mm around the true 10 mm (the halting bump logged `noise 17.2 mm`), while a sensor's noise doesn't change from one scan to the next. The average keeps the corner guard steady and makes the logged figure meaningful
+
 ### 9/25/2026
 
 - **The corner guard now sizes its margin from the LiDAR's own noise, not a fixed 1 cm** - yesterday's fix lifted the guard by a fixed 1 cm, which is really "1 cm, given this LiDAR's noise": another number to retune for a different sensor, a dark or shiny surface, or bright light. The follower now estimates the range noise from every scan - along a surface, the second difference of neighbouring ranges is pure noise, and taking its median ignores the few points at a corner - and lifts the guard by that. Wall offset the guard adds at 0.5 / 1 / 2 cm of range noise: fixed 1 cm margin 0.0 / 1.4 / **13.5** mm; median-5 filter 1.5 / 3.9 / 7.6 mm; median-9 0.8 / 1.9 / 6.3 mm; **estimated 0.3 / 1.0 / 4.7 mm**. A median filter was the natural first idea and does help, but only removes part of the bias, and its window is counted in beams, so it covers a different arc on a LiDAR with a different resolution - a sensor-dependent setting of its own
