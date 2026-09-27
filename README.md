@@ -112,6 +112,23 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 9/26/2026
 
+- **The contour follower steers back to its standoff 6x harder - no more clipped corners** - `k_approach`, the approach angle asked for per metre of distance error, goes from 2 to **12**: about 7° per centimetre off the 23 cm standoff. Around a leg or a box corner, a proportional controller has to hold some error to keep turning, and that error is the turn's need divided by this gain; at 2 the robot wrapped sharp corners 3-4 cm inside its standoff in Gazebo and now and then touched. Measured with one lap of the torture course per gain, true clearance from the simulator's ground truth (the bumper touches at 17.45 cm):
+
+| Gain | Closest pass | Time closer than 20 cm | Bumps |
+|---|---|---|---|
+| 2 (old) | 17.4 cm | 10.4% | 1 |
+| 6 | 18.6 cm | 2.0% | 0 |
+| **12 (new), two laps** | **19.0 / 19.6 cm** | **0.3%** | **0** |
+| 15 | 19.8 cm | 0.1% | 0 |
+| 25 | 20.0 cm | 0.0% | 0 |
+| 40 | 17.4 cm | 1.1% | 1 |
+| 100 | 17.4 cm | 2.4% | 1 |
+
+- **How far the gain can go: about 25** - above that the robot overshoots and weaves. At 40 its turn rate swings 2.5x as hard as at 6 and it bumps; at 100 it weaves ±16 mm along a plain wall. It matches the theory: along a straight wall the loop is a spring and damper with damping ≈ √(2.5 / gain) at 15 cm/s - 0.65 at 6, 0.46 at 12, 0.32 at 25 - and weaving shows below about 0.3. 12 leaves a 2x margin. To try other values: `k_approach:=` on the launch line, or `ros2 param set /contour_follower k_approach 20.0` while it runs
+- **Wheel slip is not what pulled the robot into corners** - against ground truth the robot turns at 98% of the commanded rate and drives at 99% of the commanded speed
+- **Known trap, seen in the sweep: a lone table leg can capture the follower** - at gain 10 it locked onto one of the two thin legs and circled it for four minutes. A leg looks like a complete obstacle, and nothing yet tells the follower it has been all the way round; loop closure is next
+- **If a launch argument seems to do nothing, check your image is current** - the first gain runs used an image from before `k_approach` existed, so the argument was silently dropped (see the next item). `docker pull makerspet/oomwoo:jazzy-dev` before starting a new container
+
 - **`halt_on_bump:=false` was being silently ignored - fixed** - the contour follower's launch file only passed three settings through to the node, and `ros2 launch` accepts any other `name:=value` without complaint and quietly drops it. So every run meant to have halting off had it on, and the latest torture-course run stopped at its first bump. `halt_on_bump`, `use_body_bearing` and `use_curvature_ff` are now passed through, checked on a running node. Worth knowing in general: a misspelled or undeclared launch argument produces no error; `ros2 param get /contour_follower <name>` shows what the node actually got
 
 ```
