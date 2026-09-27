@@ -112,6 +112,30 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ### 9/26/2026
 
+- **New: a cleaning manager that sweeps every obstacle edge once, then stops** - the contour follower on its own never knows it has been all the way round: in the gain sweep it circled a lone table leg for four minutes. The manager gives it a job list. It finds the nearest obstacle edge not yet swept (measured along paths the robot fits through), drives there with Nav2, parks facing along the edge, runs the follower, and stops it the moment it runs back onto its own track - the end of a lap round a leg, or the start of an earlier stretch. Then the next edge, until none is left, and a report:
+
+```
+EDGE CLEAN DONE in 8m 03s: edges 97.1% swept (~43 of ~44 m; ~0.9 m written off), floor passed over 16.5 of 31.7 m2, driven 53.6 m, 5 segments (nav_failed 1, revisit 4)
+```
+
+  That is the torture course in Gazebo, AMCL localization, no contacts (closest pass 19.6 cm). Anything Nav2 cannot reach or the follower cannot trace is written off rather than retried forever, and three Nav2 failures in a row end the run with "the robot looks stuck". The robot's pose comes from TF, not the simulator's ground truth, so the same node runs on the real robot. To try it, three terminals (plus RViz, below):
+
+```
+ros2 launch oomwoo_gazebo world.launch.py world:=contour_torture.world x_pose:=-2.6 y_pose:=-2.77 odom_source:=robot_wheels
+ros2 launch oomwoo_clean nav.launch.py x_pose:=-2.6 y_pose:=-2.77 map:=$(ros2 pkg prefix oomwoo_sim_support)/share/oomwoo_sim_support/maps/contour_torture.yaml
+ros2 launch oomwoo_clean edge_clean.launch.py
+```
+
+- **New RViz view, `edge_clean.rviz`** - `wall_follow.rviz` plus the map, the floor already passed over (blue), the obstacle edges (magenta dirty, green swept, cyan written off) and an arrow at the manager's next stop
+
+```
+ros2 launch oomwoo_bringup monitor_robot.launch.py use_sim_time:=true rviz_config:=edge_clean.rviz
+```
+
+- **Nav2 now steers with Regulated Pure Pursuit instead of DWB** - the manager's first Gazebo run found DWB stuck on open floor, facing straight down its own path, for 10 minutes. DWB scores every trajectory against all of the plan inside its 3 m window, and a plan that U-turns round the end of a thin wall - the torture course's peninsula, but equally a room divider or an open door - lies on both sides of it, so driving forward stops scoring any better than standing still. Its own critic scores showed it: forward and turning-on-the-spot tied at 48.48, and the tie went to standing still. Limiting DWB to the next 0.6 m of plan got the robot as far as the wall's end, where it stuck again. RPP chases one point 0.4 m ahead and ignores the rest of the plan: DWB stalled at 94% of the edges, RPP finished 97% in 8 minutes. Not yet re-checked on the living-room Nav2 cases the old tuning came from
+- **The torture course has a Nav2 map** - `oomwoo_sim_support/maps/contour_torture.yaml`, rasterized from the same layout as the world by `make_contour_torture.py --map`, so it lines up exactly
+- **The contour follower no longer publishes `cmd_vel` while disabled** (just one stop command), so it no longer fights Nav2 for the wheels. Run on its own, with the default `auto_start`, it behaves as before
+
 - **The contour follower steers back to its standoff 6x harder - no more clipped corners** - `k_approach`, the approach angle asked for per metre of distance error, goes from 2 to **12**: about 7° per centimetre off the 23 cm standoff. Around a leg or a box corner, a proportional controller has to hold some error to keep turning, and that error is the turn's need divided by this gain; at 2 the robot wrapped sharp corners 3-4 cm inside its standoff in Gazebo and now and then touched. Measured with one lap of the torture course per gain, true clearance from the simulator's ground truth (the bumper touches at 17.45 cm):
 
 | Gain | Closest pass | Time closer than 20 cm | Bumps |
