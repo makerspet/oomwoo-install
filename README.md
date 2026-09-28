@@ -110,6 +110,17 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 9/27/2026
+
+- **Edge cleaning no longer leaves bits of edge behind** - the manager sent the robot to the *nearest* dirty edge, which was often the far end of a dirty stretch. The follower only drives forward, so it ran straight onto already-swept edge, stopped after 30 cm, and wrote off the dirty edge behind it - the cyan patches, and a table leg done in three short hops with a third of it left. Now each segment starts where its dirty stretch *begins* (plus a 10 cm run-up, since Nav2 parks within 15 cm of its goal). Replaying the Gazebo run's first lap: three hops became one, 100% swept. Gazebo end to end: **99.0% of edges swept, 0.2 m written off** (was 97.1%, 0.9 m), no contacts
+- **`edge_clean.rviz` tidied for screen recordings** - shorter labels (Edges, Cleaned floor, Nav2 target, LiDAR); the Edges layer no longer paints black over the map (an RViz Map display at alpha exactly 1.0 ignores transparent cells, so it is now 0.99); the cleaned floor is green, drawn pale so it stands apart from the solid green of swept edges
+- **Why the cleaned floor can look shifted against the edges** - cleaning is marked where the robot *believes* it is, and a mark stays put when localization later corrects itself. Measured against the simulator's ground truth over a full run, AMCL is 3.4 cm off typically, 6.2 cm at the 90th percentile, 12 cm at worst - that is the offset you see. AMCL already updates every 2.5 cm of travel, so the fix is better localization, not tuning
+- **The torture course still localizes with AMCL** - `navigation.launch.py` defaults to slam_toolbox localization but needs a pose-graph next to the map (`contour_torture_serial.posegraph`), and falls back to AMCL without one. A graph from a single mapped lap came out distorted (0.3 cm off at the start, 75 cm by the far side of the course) and was not committed. Tips for mapping one:
+  - map with `odom_source:=ground_truth` in `world.launch.py`, so the SLAM map frame is the world frame and lines up with `contour_torture.yaml`
+  - drive the course at least twice, so slam_toolbox can close the loop
+  - in Jazzy, `slam_toolbox` is a lifecycle node: started on its own it sits idle until `ros2 lifecycle set /slam_toolbox configure` then `activate`
+  - save with `ros2 service call /slam_toolbox/serialize_map slam_toolbox/srv/SerializePoseGraph "{filename: '<path>/contour_torture_serial'}"`, next to `contour_torture.yaml` in the *installed* share folder (with `--symlink-install`, a file added only to the source folder is not linked there until the next build)
+
 ### 9/26/2026
 
 - **New: a cleaning manager that sweeps every obstacle edge once, then stops** - the contour follower on its own never knows it has been all the way round: in the gain sweep it circled a lone table leg for four minutes. The manager gives it a job list. It finds the nearest obstacle edge not yet swept (measured along paths the robot fits through), drives there with Nav2, parks facing along the edge, runs the follower, and stops it the moment it runs back onto its own track - the end of a lap round a leg, or the start of an earlier stretch. Then the next edge, until none is left, and a report:
