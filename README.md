@@ -110,6 +110,17 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 10/12/2026
+
+- **One floor camera instead of a forward stereo pair** ([oomwoo-one](https://github.com/makerspet/oomwoo-one)) - the two forward-looking cameras are gone. In their place is a single RGB camera at the front centre, as high as the body allows (lens about 71 mm above the floor), tilted down at the floor. Stereo depth would be nice, but the two front ToF sensors (8x8 zones each) already give the obstacle depth. What a camera can add that they can't is the floor itself: the stains a robot leaves behind, and the lines of dirt its mops push along, which show up in reflected light on a wet floor. Looking down is also a privacy feature: the camera never sees above about the robot's height nearby, or a third of a metre at a metre out
+- **The tilt follows the field of view** - with a 120 deg horizontal lens on a 4:3 sensor (about 105 deg vertically), the camera is tilted 37.6 deg down. The bottom of the image then looks straight down at the floor by the bumper, so no pixels go to the robot itself, and the top is about 15 deg above horizontal. From about 10 cm out it sees anything up to the robot's height. Change `camera_hfov_deg` and the tilt adjusts. Many lens listings quote the *diagonal* field of view: a "120 deg" lens is then about 108 deg horizontally, so enter the horizontal figure. In Gazebo the view runs from bare floor at the bumper to the dining table's and chairs' legs, and no higher
+- **Topics** - `/camera/image` and `/camera/camera_info`, in `camera_optical_frame`, replacing `/camera_left/...` and `/camera_right/...`. Still off by default: `world.launch.py enable_cameras:=true` turns it on, and `sensors.rviz` shows it as *Floor Camera*
+
+```
+ros2 launch oomwoo_gazebo world.launch.py world:=kitchen_dining.world enable_cameras:=true
+ros2 run rqt_image_view rqt_image_view /camera/image
+```
+
 ### 9/27/2026
 
 - **Edge cleaning no longer leaves bits of edge behind** - the manager sent the robot to the *nearest* dirty edge, which was often the far end of a dirty stretch. The follower only drives forward, so it ran straight onto already-swept edge, stopped after 30 cm, and wrote off the dirty edge behind it - the cyan patches, and a table leg done in three short hops with a third of it left. Now each segment starts where its dirty stretch *begins* (plus a 10 cm run-up, since Nav2 parks within 15 cm of its goal). Replaying the Gazebo run's first lap: three hops became one, 100% swept. Gazebo end to end: **99.0% of edges swept, 0.2 m written off** (was 97.1%, 0.9 m), no contacts
