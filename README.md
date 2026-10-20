@@ -110,6 +110,12 @@ ros2 launch oomwoo_bringup navigation.launch.py slam:=True
 
 ## Release history
 
+### 10/19/2026
+
+- **Lighter Nav2** ([oomwoo-ros2-tools](https://github.com/makerspet/oomwoo-ros2-tools)) - `navigation.launch.py` with slam_toolbox localization (the default) now starts only the Nav2 servers OOMWOO uses: controller, planner, behaviors, BT navigator, velocity smoother and collision monitor. The route, docking, waypoint and path smoother servers are gone. The AMCL and mapping paths still start Nav2's full set
+- **Nav2 config** ([oomwoo-one](https://github.com/makerspet/oomwoo-one)) - no voxel layers in the costmaps (with a 2D LiDAR they only repeated the obstacle layer's work), and a 1 s lifecycle bond heartbeat instead of 0.1 s. The VoxelGrid displays in `navigation.rviz` and `bump_map.rviz` are switched off
+- **About 20% less idle CPU** for Nav2, measured on a laptop and on a Pixel 7. In the living_room simulation the robot still reaches its goals, with slam_toolbox and with AMCL localization. Measurements in [ROS 2 on a smartphone](https://makerspet.com/blog/oomwoo-smartphone-ros2-termux/#oomwoo-navigation-stack)
+
 ### 10/12/2026
 
 - **One floor camera instead of a forward stereo pair** ([oomwoo-one](https://github.com/makerspet/oomwoo-one)) - the two forward-looking cameras are gone. In their place is a single RGB camera at the front centre, as high as the body allows (lens about 71 mm above the floor), tilted down at the floor. Stereo depth would be nice, but the two front ToF sensors (8x8 zones each) already give the obstacle depth. What a camera can add that they can't is the floor itself: the stains a robot leaves behind, and the lines of dirt its mops push along, which show up in reflected light on a wet floor. Looking down is also a privacy feature: the camera never sees above about the robot's height nearby, or a third of a metre at a metre out
